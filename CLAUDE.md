@@ -188,9 +188,15 @@ Facts that cost time to learn:
 - **`image-dither` does not exist in the CSS** in any version. Dithering is
   entirely server-side. The class is kept because the linter asks for it; it has
   no client-side effect.
-- **There is no filter/contrast utility.** `shared.liquid` defines `.sw-contrast`
-  for that reason — the one piece of custom CSS, in Shared so no view carries a
+- **There is no filter/contrast utility.** Verified against 3.3.0: zero
+  `grayscale`, zero `contrast(`. `shared.liquid` defines `.sw-contrast` for
+  that reason — the one piece of custom CSS, in Shared so no view carries a
   `<style>` block.
+- **`image-stroke` is real** (358 selectors) and is already what the
+  **Outlined** avatar option uses. It is a stroke, not a filter, so it is not
+  a substitute for `.sw-contrast` — a reviewer has suggested swapping them.
+- **`border--v-black` / `border--h-black` are real** (2 selectors each), in
+  case a reviewer claims otherwise.
 - **`inverse` (new in 3.3.0)** re-maps semantic tokens for a whole subtree and
   tracks bit depth, dark mode and palettes. It replaces `bg--black` plus
   `text--white` repeated on every child.
@@ -246,9 +252,13 @@ Don't "fix" these without reading why:
    **Until that push succeeds, the repo has still never sent anything to
    TRMNL** — which is exactly the condition that let the bot revert `774d217`.
    The 3.3.0 restore is safe in git, but it is not safe from the next sync.
-3. **Check the plugin's Shared tab** contains `.sw-contrast`. If the sync does
-   not carry `src/shared.liquid`, the High contrast artwork option silently does
-   nothing and should be removed.
+3. **Shared tab — answered, no action.** `src/shared.liquid` *does* reach
+   TRMNL: the AI Chef quoted the `<style>` block and named the field
+   `markup_shared`, which it could only do by reading it there. So
+   `.sw-contrast` is live and the High contrast option works — do not remove
+   it for the reason this item originally suspected. The open question is the
+   opposite one: whether to keep the `<style>` block at all, given the
+   reviewer flags it (see below).
 4. **Submit the recipe.** Unlisted first is the recommendation: no moderation
    queue, immediate link, and the audience is SUB/WAVE operators who will not
    find it by browsing categories. Public brings Plugin Licensing into scope.
@@ -265,3 +275,21 @@ where it tends to suggest Tailwind class names (`border-l`, `w--px`,
 
 When it makes a claim about a class, check the stylesheet before acting. When it
 points at something in these files, it is usually right.
+
+**Scored against the 2026-08-29 review, 3 of 6 did not hold:**
+
+| # | Claim | Verdict |
+| - | ----- | ------- |
+| 1 | missing `</div>` in `full.liquid` | **wrong** — opens L120, closes L310, EOF depth 0 |
+| 2 | `<style>` in shared is unsupported | **real**, but its suggested fix is not (below) |
+| 3 | `on_air` needs a nil check | **non-issue** — `dj` renders only inside `{% elsif on_air %}`, and Liquid returns nil on nil rather than raising |
+| 4 | verify `inverse` exists for your version | **fair, and it mattered** — see the bot-revert note above |
+| 5 | `tz_offset` half-hours under-documented | **fair, minor** — help text says "whole or half" but both examples are whole |
+| 6 | `border--v-black` may not exist | **wrong** — 2 selectors in 3.3.0 |
+
+The pattern held exactly: right about markup and settings, wrong about which
+classes exist. Claim 2 is the one worth a decision rather than a rebuttal —
+the `<style>` block is genuinely there, but the proposed replacement
+(`image-stroke`) is already used for the Outlined option and does something
+different. The real choice is to keep the block and defend it, or drop the
+High contrast option.
