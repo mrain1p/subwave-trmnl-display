@@ -170,17 +170,23 @@ plain dithering, a contrast push that drives the background to solid black
 before the panel dithers, and a hairline outline that separates the portrait
 from the page.
 
-The bigger win is upstream. `tools/dither_avatar.py` resizes to the exact
-rendered size, hardens the tones and applies an Atkinson dither before the image
-ever reaches TRMNL:
+The bigger win is upstream, in what your station serves.
+`tools/dither_avatar.py` fixes the tones before TRMNL ever sees the image:
 
 ```sh
-python tools/dither_avatar.py cliff.jpg cliff-88.png --size 88 --gamma 1.4
+python tools/dither_avatar.py cliff.png cliff-tuned.png
 ```
 
-Atkinson propagates only 6/8 of the error and discards the rest, so it clips
-toward pure black and white instead of spreading grey. That is what keeps a
-small face readable.
+It autocontrasts, lifts the shadows (gamma 1.8 by default, tuned to SUB/WAVE's
+persona art, which runs very dark), sharpens, and leaves the result grayscale so
+TRMNL can dither it at whatever size each layout needs. Serve that from your
+station and every slot improves at once.
+
+`--mode dither` also applies an Atkinson dither and returns 1-bit at an exact
+size. Atkinson propagates only 6/8 of the error and discards the rest, so it
+clips toward pure black and white instead of spreading grey — but only use it
+when you control the final pixel size, since scaling an already-dithered image
+destroys the pattern.
 
 ## Checks before pushing
 
