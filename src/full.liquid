@@ -236,11 +236,14 @@
                   {% assign short_name = gs.name | split: " ·" | first %}
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                   {% if h == cur_start %}
-                    <div class="flex flex--row flex--left flex--top gap--small shrink-0 w--full bg--black rounded--xsmall px--1.5 py--1">
-                      <span class="label label--small value--tnums text--white w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                    {%- comment -%} inverse (3.3.0) re-maps the semantic tokens for the whole
+                         subtree, so descendants invert without per-child text--white, and it
+                         tracks bit depth, dark mode and the colour palettes {%- endcomment -%}
+                    <div class="inverse flex flex--row flex--left flex--top gap--small shrink-0 w--full rounded--xsmall px--1.5 py--1">
+                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none">
-                        <span class="title title--small text--white" data-clamp="1">&#9654; {{ short_name }}</span>
-                        {% if gdj.name %}<span class="description text--white" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
+                        <span class="title title--small" data-clamp="1">&#9654; {{ short_name }}</span>
+                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
                     </div>
                   {% else %}
