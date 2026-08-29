@@ -37,6 +37,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`portrait:flex--col`), and the description clamps to fewer lines there.
 - Masthead subtitle set at 12px so a long web address and the date fit on one
   line instead of truncating.
+- **Alignment corrected against the real Framework defaults.** `.layout` and
+  `.flex--row` both centre on both axes, and the `flex--left` / `flex--top`
+  modifiers only exist compounded with a direction class &mdash; so they are now
+  always paired. Every nested flex container carries an explicit `gap--*`,
+  because bare `.flex` applies a 10px gap that was compounding into what looked
+  like excess padding.
+- **Solid rules.** `.divider` is hard-coded to border level 6, a 12px-period
+  dithered pattern that renders as light dots. All rules now use
+  `border--h-black` / `border--v-black`, the only unconditionally solid ones.
 
 ### Removed
 
