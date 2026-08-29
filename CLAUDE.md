@@ -96,6 +96,15 @@ The `GIT_EDITOR` line stops `rebase --continue` opening vim.
 edits with TRMNL's older copy at least once. After a sync, verify your changes
 survived the round-trip rather than assuming.
 
+**It reverts whole commits, not just `settings.yml`.** Bot commit `f5407db`
+rolled back every hunk of `774d217`: `framework_version` 3.3.0 &rarr; 3.1.2,
+the `inverse` subtree in `full.liquid` back to `bg--black` + `text--white`, and
+`w--[76px]` back to the off-scale `w--19`. Nothing was wrong with the work — the
+bot simply pushed TRMNL's stale copy back down, because the broken `push` job
+meant the repo had never sent anything up. `check.py` caught it only because of
+the `w--19` token; the framework downgrade was silent. **After any bot commit,
+run `python tools/check.py` and diff `src/` against your last commit.**
+
 ## Before pushing
 
 ```powershell
@@ -211,9 +220,12 @@ Don't "fix" these without reading why:
 
 ## Open items
 
-1. **Paste `workflow-trmnl.yml` over `.github/workflows/trmnl.yml`.** It has the
-   version pin that fixes CI. (Agents using a file bridge are typically blocked
-   from writing `.github/workflows/` — use the GitHub web editor.)
+1. **Verify the first green CI run actually reached TRMNL.** The workflow now
+   pins `gem install trmnl_preview -v "~> 0.11"` in both jobs, so `lint` and
+   `push` can resolve their commands. Confirm the `push` job succeeded, then
+   check the bot's next sync pulls 3.3.0 *down* rather than reverting it again.
+   (There was never a `workflow-trmnl.yml` — it was pasted into chat, not the
+   repo. The pin is committed directly now.)
 2. **Confirm `TRMNL_API_KEY` is set** under Settings → Secrets and variables →
    Actions, and that the `push` job actually succeeds once pinned.
 3. **Check the plugin's Shared tab** contains `.sw-contrast`. If the sync does
