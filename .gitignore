@@ -12,3 +12,6 @@ tmp/
 Thumbs.db
 .idea/
 .vscode/
+
+# bundler (lock is resolved in CI)
+Gemfile.lock
