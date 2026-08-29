@@ -6,6 +6,7 @@
 {% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
 {% assign show_avatars = cf.show_avatars | default: show_avatars | default: 'yes' %}
 {% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
+{% assign title_bar    = cf.title_bar    | default: title_bar | default: 'no' %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
 {%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
@@ -17,12 +18,11 @@
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
 {% assign av_on = true %}
-{% assign av_cls = 'image--cover image-dither' %}
-{% assign av_style = '' %}
+{% assign av_extra = '' %}
 {% case show_avatars %}
   {% when 'no' %}{% assign av_on = false %}
-  {% when 'outline' %}{% assign av_cls = 'image--cover image-dither image-stroke image-stroke--black image-stroke--small' %}
-  {% when 'contrast' %}{% assign av_style = 'filter:grayscale(1) contrast(1.75) brightness(1.04)' %}
+  {% when 'outline' %}{% assign av_extra = 'image-stroke image-stroke--black image-stroke--small' %}
+  {% when 'contrast' %}{% assign av_extra = 'sw-contrast' %}
 {% endcase %}
 
 {% assign shows_l    = IDX_0.shows    | default: shows %}
@@ -107,6 +107,17 @@
 {% assign on_air = shows_l | find_by: 'id', current_id %}
 {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
 
+<style>
+  /* No Framework utility exists for filters; defined once as a class so no
+     element carries an inline style attribute. */
+  .sw-contrast { filter: grayscale(1) contrast(1.75) brightness(1.04); }
+</style>
+{% if title_bar == 'yes' %}
+  <div class="title_bar">
+    <span class="title">{{ st_name }}</span>
+    <span class="instance">{{ trmnl.plugin_settings.instance_name }}</span>
+  </div>
+{% endif %}
 <div class="layout">
   <div class="flex flex--col h--full gap--xsmall">
 
@@ -114,10 +125,10 @@
     <div class="divider"></div>
 
     {% if on_air %}
-      <div class="flex flex--row gap--small flex--center-y">
+      <div class="flex flex--row portrait:flex--col gap--small flex--center-y portrait:flex--left">
         {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="{{ av_cls }} w--[56px] h--[56px] shrink-0" src="{{ av }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
+          <img class="image image-dither image--cover {{ av_extra }} w--[56px] h--[56px] portrait:w--[44px] portrait:h--[44px] shrink-0" src="{{ av }}" />
         {% endif %}
         <div class="flex flex--col gap--xsmall">
           <span class="label label--small">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
@@ -127,7 +138,7 @@
       </div>
       {% if on_air.topic %}
         <div class="divider"></div>
-        <span class="description text--small" data-clamp="2">{{ on_air.topic }}</span>
+        <span class="description text--small" data-clamp="2" data-clamp-portrait="3">{{ on_air.topic }}</span>
       {% endif %}
     {% else %}
       <div class="flex flex--col gap--xsmall">

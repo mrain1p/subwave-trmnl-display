@@ -35,7 +35,7 @@ custom_fields:
   field_type: url
   name: Station URL
   description: The public address of your SUB/WAVE station &mdash; the same origin your web player uses. Must be reachable from the public internet (a LAN address will not work, since TRMNL fetches the data from its own servers).
-  help_text: Origin only, with <strong>no trailing slash</strong> &mdash; e.g. <code>https://radio.yourstation.com</code>, not <code>.../</code>.
+  help_text: Origin only. Do not add a trailing slash, and do not include a path &mdash; just the host your web player points at.
   placeholder: https://radio.yourstation.com
 - keyname: station_name
   field_type: string
@@ -85,6 +85,16 @@ custom_fields:
   - Small: sm
   default: md
   group: Display Options
+- keyname: title_bar
+  field_type: select
+  name: TRMNL Title Bar
+  description: Adds the standard TRMNL bar naming the plugin and this instance. The full-screen layout already carries your station wordmark, so this mostly earns its place in mashups, where it tells plugins apart.
+  options:
+  - Hidden: 'no'
+  - Shown: 'yes'
+  default: 'no'
+  group: Display Options
+
 - keyname: guide_rows
   field_type: number
   name: Programming Guide Length
