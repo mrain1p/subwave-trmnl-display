@@ -48,7 +48,7 @@
 {% if st_tag == blank %}{% assign st_tag = host %}{% endif %}
 
 {% assign off_s = trmnl.user.utc_offset %}
-{% if tz_offset != blank %}{% assign off_s = tz_offset | times: 3600 %}{% endif %}
+{% if tz_offset != blank %}{% assign off_s = tz_offset | times: 3600 | round %}{% endif %}
 {% assign local_ts = trmnl.system.timestamp_utc | plus: off_s %}
 {% assign dow = local_ts | date: '%w' %}
 {% assign hour_now = local_ts | date: '%H' | plus: 0 %}
