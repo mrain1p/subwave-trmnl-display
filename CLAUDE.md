@@ -125,16 +125,26 @@ TRMNL's submission reviewer ("AI Chef") runs the checks shipped in
 `trmnl_preview`. You can run them yourself:
 
 ```sh
-gem install trmnl_preview -v "~> 0.11"
-trmnlp lint
+bundle install            # uses the repo Gemfile; needs Ruby >= 4.0
+bundle exec trmnlp lint
 ```
 
-**Pin the version.** `lint` and `push` did not exist before 0.9.0, and 0.9+
-requires Ruby ≥ 3.4. An unpinned `gem install` silently resolves to 0.3.2, which
-has only `build`, `serve`, `version`, and fails with
-`Could not find command "lint"`. This broke CI's lint *and* push jobs for a long
-time — which is why the reviewer kept seeing stale code: **the repo was never
-pushing to TRMNL.** Only the bot's TRMNL→repo direction worked.
+**Pin the version.** `lint` and `push` did not exist before 0.9.0, so an
+unpinned `gem install` silently resolves to 0.3.2 — which has only `build`,
+`serve`, `version` — and fails with `Could not find command "lint"`. This broke
+CI's lint *and* push jobs for a long time, which is why the reviewer kept seeing
+stale code: **the repo was never pushing to TRMNL.** Only the bot's
+TRMNL→repo direction worked.
+
+**The gem's declared Ruby requirement is wrong, and it lies quietly.**
+`trmnl_preview` 0.11.0 advertises `ruby >= 3.4`, but it depends on
+`trmnl-liquid ~> 0.7.0`, and every `trmnl-liquid` from 0.5.0 up requires
+`ruby >= 4.0`. So the real floor is **Ruby 4.0**, and pinning the gem alone is
+not enough. Worse, `gem install` does not say so: it dies inside its own
+conflict reporter with `undefined method 'request' for nil`, which looks like a
+RubyGems bug rather than a version floor. **Install through Bundler** — it
+prints the actual chain. That is why the repo carries a `Gemfile` and CI runs
+`ruby-version: "4.0"` with `bundle exec`.
 
 The rules, as of 0.11.0: inline-style properties ≤ 6 occurrences across all
 markup (counts `justify-content padding margin background-color border-radius
