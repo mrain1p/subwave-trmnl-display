@@ -13,8 +13,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - run: gem install trmnl_preview -v "~> 0.11"
-      - run: trmnlp lint
+          bundler-cache: true
+      - run: bundle exec trmnlp lint
 
   push:
     needs: lint
@@ -25,7 +25,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - run: gem install trmnl_preview -v "~> 0.11"
-      - run: trmnlp push --force
+          bundler-cache: true
+      - run: bundle exec trmnlp push --force
         env:
           TRMNL_API_KEY: ${{ secrets.TRMNL_API_KEY }}
