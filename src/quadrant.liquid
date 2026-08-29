@@ -1,25 +1,34 @@
 {%- comment -%} ══ SUB/WAVE RADIO · full ══ {%- endcomment -%}
-{% assign shows_l    = IDX_0.shows    | default: shows %}
-{% assign personas_l = IDX_0.personas | default: personas %}
-{% assign grid       = IDX_0.schedule | default: schedule %}
-{% assign np         = IDX_1 %}
-
-{%- comment -%} form fields: documented path first, bare name as fallback {%- endcomment -%}
 {% assign cf = trmnl.plugin_settings.custom_fields_values %}
 {% assign station_url  = cf.station_url  | default: station_url %}
 {% assign station_name = cf.station_name | default: station_name %}
 {% assign subtitle     = cf.subtitle     | default: subtitle %}
 {% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
-{% assign show_avatars = cf.show_avatars | default: show_avatars %}
+{% assign show_avatars = cf.show_avatars | default: show_avatars | default: 'yes' %}
 {% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
+{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_fs = 16 %}{% assign t_lh = '1.50' %}{% assign t_clamp = 9 %}
-  {% when 'sm' %}{% assign t_fs = 13 %}{% assign t_lh = '1.42' %}{% assign t_clamp = 13 %}
-  {% when 'xs' %}{% assign t_fs = 12 %}{% assign t_lh = '1.38' %}{% assign t_clamp = 15 %}
-  {% else %}       {% assign t_fs = 14 %}{% assign t_lh = '1.48' %}{% assign t_clamp = 11 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}
 {% endcase %}
+
+{%- comment -%} DJ artwork treatment {%- endcomment -%}
+{% assign av_on = true %}
+{% assign av_cls = 'image--cover image-dither' %}
+{% assign av_style = '' %}
+{% case show_avatars %}
+  {% when 'no' %}{% assign av_on = false %}
+  {% when 'outline' %}{% assign av_cls = 'image--cover image-dither image-stroke image-stroke--black image-stroke--small' %}
+  {% when 'contrast' %}{% assign av_style = 'filter:grayscale(1) contrast(1.75) brightness(1.04)' %}
+{% endcase %}
+
+{% assign shows_l    = IDX_0.shows    | default: shows %}
+{% assign personas_l = IDX_0.personas | default: personas %}
+{% assign grid       = IDX_0.schedule | default: schedule %}
+{% assign np         = IDX_1 %}
 
 {% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
 {% assign base = "https://" | append: host | append: "/api" %}
@@ -44,7 +53,6 @@
 {% assign tomorrow = grid[tm_key] %}
 {% assign current_id = today[hour_now] %}
 
-{%- comment -%} ── current block bounds ── {%- endcomment -%}
 {% assign cur_start = 0 %}
 {% for h in (0..hour_now) %}
   {% if today[h] != current_id %}{% assign cur_start = h | plus: 1 %}{% endif %}
@@ -57,7 +65,6 @@
   {% endunless %}
 {% endfor %}
 
-{%- comment -%} ── midnight merge + next block ── {%- endcomment -%}
 {% assign tm_skip = 0 %}
 {% assign end_hour = cur_end %}
 {% assign next_id = nil %}
@@ -101,33 +108,31 @@
 {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
 
 <div class="layout">
-  <div style="display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;gap:4px">
+  <div class="flex flex--col h--full gap--xsmall">
 
-    <div style="border-bottom:2px solid #000;padding-bottom:2px;flex-shrink:0">
-      <span class="label" style="letter-spacing:2px">{{ st_name | upcase | truncate: 22 }}</span>
-    </div>
+    <span class="label label--small" data-clamp="1">{{ st_name | upcase }}</span>
+    <div class="divider"></div>
 
     {% if on_air %}
-      <div style="display:flex;gap:7px;align-items:center;min-height:0">
-        {% if show_avatars != 'no' and dj.avatar %}
+      <div class="flex flex--row gap--small flex--center-y">
+        {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="image-dither" src="{{ av }}" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;border:1px solid #000" />
+          <img class="{{ av_cls }} w--[56px] h--[56px] shrink-0" src="{{ av }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
         {% endif %}
-        <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
-          <span class="label label--small" style="letter-spacing:2px">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-          <span style="font-size:15px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2">{{ on_air.name | split: " ·" | first }}</span>
-          {% if dj.name %}<span style="font-size:11px">with {{ dj.name }}</span>{% endif %}
+        <div class="flex flex--col gap--xsmall">
+          <span class="label label--small">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+          <span class="title title--small" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
+          {% if dj.name %}<span class="description" data-clamp="1">with {{ dj.name }}</span>{% endif %}
         </div>
       </div>
       {% if on_air.topic %}
-        <div style="margin-top:auto;border-top:1px dotted #000;padding-top:3px;flex-shrink:0">
-          <span style="font-size:11px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ on_air.topic }}</span>
-        </div>
+        <div class="divider"></div>
+        <span class="description text--small" data-clamp="2">{{ on_air.topic }}</span>
       {% endif %}
     {% else %}
-      <div style="min-height:0;display:flex;flex-direction:column;gap:2px">
-        <span class="label label--small" style="letter-spacing:2px">UNSCHEDULED</span>
-        <span style="font-size:12px">Rotation running unattended.</span>
+      <div class="flex flex--col gap--xsmall">
+        <span class="label label--small label--filled">UNSCHEDULED</span>
+        <span class="description text--small">Rotation running unattended.</span>
       </div>
     {% endif %}
 

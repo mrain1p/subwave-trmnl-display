@@ -44,8 +44,8 @@ Only the first field is required.
 | **Station Name** | string | Overrides the wordmark. Blank uses the name your station reports. |
 | **Masthead Subtitle** | string | The line under the wordmark. Blank uses your station's tagline; type your own to show a web address. |
 | **Station UTC Offset** | number | Only needed if your TRMNL sits in a different time zone than the station. See [Time zones](#time-zones). |
-| **DJ Artwork** | select | Persona avatars load from your station. Turn off if your server is slow or you prefer text only. |
-| **Show Description Size** | select | Large / Normal / Small / Extra small. Sets type size and how many lines fit before the description ellipses. |
+| **DJ Artwork** | select | Dithered / High contrast / Outlined / Hidden. Dark art dithers into noise on 1-bit panels &mdash; see [DJ artwork](#dj-artwork). |
+| **Show Description Size** | select | Large / Normal / Small. Sets type size and how many lines fit before the description ellipses. |
 | **Programming Guide Length** | number | 3–14 blocks in the guide column on the full layout. |
 
 ## Layouts
@@ -158,11 +158,29 @@ Field values are interpolated into the polling URL verbatim, and `{% assign %}` 
 don't execute there, so the URL can't be normalised inside the plugin. A trailing
 slash produces `//api/schedule` and a 404.
 
-### Avatars
+### DJ artwork
 
 Persona artwork is loaded cross-origin from your station on every refresh. If
-your server is slow or briefly down, you get an empty bordered box. Turn off DJ
-Artwork if that bothers you.
+your server is slow or briefly down, you get an empty box.
+
+A 1-bit panel dithers whatever you send it. Dark, low-contrast portraits turn
+into noise, because a flat mid-dark region is the worst case for dithering: half
+the pixels end up on. The **DJ Artwork** setting offers three treatments —
+plain dithering, a contrast push that drives the background to solid black
+before the panel dithers, and a hairline outline that separates the portrait
+from the page.
+
+The bigger win is upstream. `tools/dither_avatar.py` resizes to the exact
+rendered size, hardens the tones and applies an Atkinson dither before the image
+ever reaches TRMNL:
+
+```sh
+python tools/dither_avatar.py cliff.jpg cliff-88.png --size 88 --gamma 1.4
+```
+
+Atkinson propagates only 6/8 of the error and discards the rest, so it clips
+toward pure black and white instead of spreading grey. That is what keeps a
+small face readable.
 
 ## Changelog
 

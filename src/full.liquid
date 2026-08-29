@@ -1,25 +1,34 @@
 {%- comment -%} ══ SUB/WAVE RADIO · full ══ {%- endcomment -%}
-{% assign shows_l    = IDX_0.shows    | default: shows %}
-{% assign personas_l = IDX_0.personas | default: personas %}
-{% assign grid       = IDX_0.schedule | default: schedule %}
-{% assign np         = IDX_1 %}
-
-{%- comment -%} form fields: documented path first, bare name as fallback {%- endcomment -%}
 {% assign cf = trmnl.plugin_settings.custom_fields_values %}
 {% assign station_url  = cf.station_url  | default: station_url %}
 {% assign station_name = cf.station_name | default: station_name %}
 {% assign subtitle     = cf.subtitle     | default: subtitle %}
 {% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
-{% assign show_avatars = cf.show_avatars | default: show_avatars %}
+{% assign show_avatars = cf.show_avatars | default: show_avatars | default: 'yes' %}
 {% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
+{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_fs = 16 %}{% assign t_lh = '1.50' %}{% assign t_clamp = 9 %}
-  {% when 'sm' %}{% assign t_fs = 13 %}{% assign t_lh = '1.42' %}{% assign t_clamp = 13 %}
-  {% when 'xs' %}{% assign t_fs = 12 %}{% assign t_lh = '1.38' %}{% assign t_clamp = 15 %}
-  {% else %}       {% assign t_fs = 14 %}{% assign t_lh = '1.48' %}{% assign t_clamp = 11 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}
 {% endcase %}
+
+{%- comment -%} DJ artwork treatment {%- endcomment -%}
+{% assign av_on = true %}
+{% assign av_cls = 'image--cover image-dither' %}
+{% assign av_style = '' %}
+{% case show_avatars %}
+  {% when 'no' %}{% assign av_on = false %}
+  {% when 'outline' %}{% assign av_cls = 'image--cover image-dither image-stroke image-stroke--black image-stroke--small' %}
+  {% when 'contrast' %}{% assign av_style = 'filter:grayscale(1) contrast(1.75) brightness(1.04)' %}
+{% endcase %}
+
+{% assign shows_l    = IDX_0.shows    | default: shows %}
+{% assign personas_l = IDX_0.personas | default: personas %}
+{% assign grid       = IDX_0.schedule | default: schedule %}
+{% assign np         = IDX_1 %}
 
 {% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
 {% assign base = "https://" | append: host | append: "/api" %}
@@ -44,7 +53,6 @@
 {% assign tomorrow = grid[tm_key] %}
 {% assign current_id = today[hour_now] %}
 
-{%- comment -%} ── current block bounds ── {%- endcomment -%}
 {% assign cur_start = 0 %}
 {% for h in (0..hour_now) %}
   {% if today[h] != current_id %}{% assign cur_start = h | plus: 1 %}{% endif %}
@@ -57,7 +65,6 @@
   {% endunless %}
 {% endfor %}
 
-{%- comment -%} ── midnight merge + next block ── {%- endcomment -%}
 {% assign tm_skip = 0 %}
 {% assign end_hour = cur_end %}
 {% assign next_id = nil %}
@@ -98,83 +105,75 @@
 {% capture next_start_f %}{% assign x = next_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if next_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
 
 <div class="layout">
-  <div style="display:flex;height:100%;width:100%;overflow:hidden">
+  <div class="flex flex--row h--full">
 
-    {%- comment -%} ═══ LEFT COLUMN ═══ {%- endcomment -%}
-    <div style="width:55%;padding-right:10px;display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden">
+    <div class="flex flex--col gap--small w--[54cqw] pr--2">
 
-      <div style="flex-shrink:0">
-        <div style="border-top:4px solid #000;border-bottom:1px solid #000;padding:3px 0 1px;text-align:center">
-          <span class="title title--large" style="letter-spacing:3px">{{ st_name | upcase | truncate: 22 }}</span>
+      <div class="flex flex--col">
+        <div class="flex flex--center-x">
+          <span class="title" data-clamp="1">{{ st_name | upcase }}</span>
         </div>
-        <div style="border-bottom:3px double #000;padding:2px 0;text-align:center">
-          <span style="font-size:12px;font-weight:bold;letter-spacing:.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ st_tag | upcase | truncate: 42 }} &middot; {{ local_ts | date: '%a, %b %-d' | upcase }}</span>
+        <div class="divider"></div>
+        <div class="flex flex--center-x py--0.5">
+          <span class="label label--small" data-clamp="1">{{ st_tag | upcase }} &middot; {{ local_ts | date: '%a, %b %-d' | upcase }}</span>
         </div>
+        <div class="divider"></div>
       </div>
 
-      {%- comment -%} ── ON AIR ── {%- endcomment -%}
       {% assign on_air = shows_l | find_by: 'id', current_id %}
       {% if on_air %}
         {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
-        <div style="display:flex;gap:10px;align-items:center;flex-shrink:0">
-          {% if show_avatars != 'no' and dj.avatar %}
+        <div class="flex flex--row gap--small flex--center-y">
+          {% if av_on and dj.avatar %}
             {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-            <img class="image-dither" src="{{ av }}" style="width:88px;height:88px;object-fit:cover;flex-shrink:0;border:1px solid #000;padding:2px" />
+            <img class="{{ av_cls }} w--[88px] h--[88px] shrink-0" src="{{ av }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
           {% endif %}
-          <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
-            <div style="background:#000;padding:2px 8px;align-self:flex-start">
-              <span class="label label--small" style="color:#fff;letter-spacing:2px">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-            </div>
-            <span class="title" data-clamp="2">{{ on_air.name }}</span>
-            {% if dj.name %}<span style="font-size:13px;font-weight:bold;letter-spacing:2px">WITH {{ dj.name | upcase }}</span>{% endif %}
+          <div class="flex flex--col gap--xsmall">
+            <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+            <span class="title title--small" data-clamp="2">{{ on_air.name }}</span>
+            {% if dj.name %}<span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
           </div>
         </div>
 
-        <div style="border-top:1px solid #000;padding-top:6px;flex:1;min-height:0;overflow:hidden">
-          <span style="font-size:{{ t_fs }}px;line-height:{{ t_lh }};display:-webkit-box;-webkit-line-clamp:{{ t_clamp }};-webkit-box-orient:vertical;overflow:hidden">{{ on_air.topic }}</span>
+        <div class="divider"></div>
+        <div class="grow">
+          <span class="{{ t_cls }}" data-clamp="{{ t_clamp }}">{{ on_air.topic }}</span>
         </div>
       {% else %}
-        <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;border-top:1px solid #000;border-bottom:1px solid #000">
-          <div style="background:#000;padding:2px 8px">
-            <span class="label label--small" style="color:#fff;letter-spacing:2px">UNSCHEDULED</span>
-          </div>
-          <span style="font-size:14px">Rotation is running unattended right now.</span>
+        <div class="grow flex flex--col flex--center gap--small">
+          <span class="label label--small label--filled">UNSCHEDULED</span>
+          <span class="description text--center">Rotation is running unattended right now.</span>
         </div>
       {% endif %}
 
-      {%- comment -%} ── COMING UP ── {%- endcomment -%}
       {% assign up_next = shows_l | find_by: 'id', next_id %}
       {% if up_next %}
         {% assign ndj = personas_l | find_by: 'id', up_next.personaId %}
-        <div style="border-top:2px solid #000;padding-top:6px;flex-shrink:0">
-          <div style="display:flex;gap:10px;align-items:center">
-            {% if show_avatars != 'no' and ndj.avatar %}
-              {% if ndj.avatar contains '://' %}{% assign nav = ndj.avatar %}{% else %}{% assign nav = base | append: ndj.avatar %}{% endif %}
-              <img class="image-dither" src="{{ nav }}" style="width:52px;height:52px;object-fit:cover;flex-shrink:0;border:1px solid #000" />
-            {% endif %}
-            <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-              <div style="border:1px solid #000;padding:1px 6px;align-self:flex-start">
-                <span class="label label--small" style="letter-spacing:2px">COMING UP &middot; {{ next_start_f }}</span>
-              </div>
-              <span style="font-size:15px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ up_next.name }}</span>
-              {% if ndj.name %}<span style="font-size:12px;display:block">with {{ ndj.name }}</span>{% endif %}
-            </div>
+        <div class="divider"></div>
+        <div class="flex flex--row gap--small flex--center-y">
+          {% if av_on and ndj.avatar %}
+            {% if ndj.avatar contains '://' %}{% assign nav = ndj.avatar %}{% else %}{% assign nav = base | append: ndj.avatar %}{% endif %}
+            <img class="{{ av_cls }} w--[52px] h--[52px] shrink-0" src="{{ nav }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
+          {% endif %}
+          <div class="flex flex--col gap--xsmall">
+            <span class="label label--small label--outline">COMING UP &middot; {{ next_start_f }}</span>
+            <span class="title title--small" data-clamp="1">{{ up_next.name }}</span>
+            {% if ndj.name %}<span class="description" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
           </div>
         </div>
       {% endif %}
     </div>
 
-    <div style="width:1px;background:#000;flex-shrink:0"></div>
+    <div class="divider--v"></div>
 
-    {%- comment -%} ═══ RIGHT COLUMN: GUIDE ═══ {%- endcomment -%}
-    <div style="width:45%;padding-left:10px;display:flex;flex-direction:column;min-height:0;overflow:hidden">
-      <span class="label" style="letter-spacing:3px;border-bottom:2px solid #000;padding-bottom:3px;flex-shrink:0">PROGRAMMING GUIDE</span>
+    <div class="flex flex--col grow pl--2">
+      <span class="label label--small">PROGRAMMING GUIDE</span>
+      <div class="divider"></div>
 
-      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;min-height:0;padding-bottom:4px">
+      <div class="flex flex--col grow gap--xsmall" data-overflow="true">
         {% assign rows = 0 %}
         {% assign tm_from = tm_skip %}
 
-        {%- comment -%} ── today, from current forward ── {%- endcomment -%}
         {% for h in (cur_start..23) %}
           {% if rows < max_rows %}
             {% assign id_h = today[h] %}
@@ -216,24 +215,25 @@
 
                 {% assign gs = shows_l | find_by: 'id', id_h %}
                 {% if gs %}
-                  {% assign short_name = gs.name | split: " &middot;" | first | split: " ·" | first %}
+                  {% assign short_name = gs.name | split: " ·" | first %}
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                   {% if h == cur_start %}
-                    <div style="display:flex;gap:8px;background:#000;padding:3px 6px;align-items:flex-start">
-                      <span style="color:#fff;font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div style="min-width:0">
-                        <span style="color:#fff;font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">&#9654; {{ short_name }}</span>
-                        {% if gdj.name %}<span style="color:#fff;font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                    <div class="flex flex--row gap--small bg--black rounded--xsmall px--1.5 py--1">
+                      <span class="label label--small value--tnums text--white w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div class="flex flex--col">
+                        <span class="title title--small text--white" data-clamp="1">&#9654; {{ short_name }}</span>
+                        {% if gdj.name %}<span class="description text--white" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
                     </div>
                   {% else %}
-                    <div style="display:flex;gap:8px;padding:3px 6px;border-bottom:1px dotted #000;align-items:flex-start">
-                      <span style="font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div style="min-width:0">
-                        <span style="font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ short_name }}</span>
-                        {% if gdj.name %}<span style="font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                    <div class="flex flex--row gap--small px--1.5">
+                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div class="flex flex--col">
+                        <span class="title title--small" data-clamp="1">{{ short_name }}</span>
+                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
                     </div>
+                    <div class="divider"></div>
                   {% endif %}
                   {% assign rows = rows | plus: 1 %}
                 {% endif %}
@@ -242,7 +242,6 @@
           {% endif %}
         {% endfor %}
 
-        {%- comment -%} ── continue into tomorrow ── {%- endcomment -%}
         {% if rows < max_rows %}
           {% for h in (tm_from..23) %}
             {% if rows < max_rows %}
@@ -270,15 +269,16 @@
 
                   {% assign gs = shows_l | find_by: 'id', id_h %}
                   {% if gs %}
-                    {% assign short_name = gs.name | split: " &middot;" | first | split: " ·" | first %}
+                    {% assign short_name = gs.name | split: " ·" | first %}
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                    <div style="display:flex;gap:8px;padding:3px 6px;border-bottom:1px dotted #000;align-items:flex-start">
-                      <span style="font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div style="min-width:0">
-                        <span style="font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ short_name }}</span>
-                        {% if gdj.name %}<span style="font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                    <div class="flex flex--row gap--small px--1.5">
+                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div class="flex flex--col">
+                        <span class="title title--small" data-clamp="1">{{ short_name }}</span>
+                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
                     </div>
+                    <div class="divider"></div>
                     {% assign rows = rows | plus: 1 %}
                   {% endif %}
                 {% endif %}

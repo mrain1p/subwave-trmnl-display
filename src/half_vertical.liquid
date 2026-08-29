@@ -1,25 +1,34 @@
 {%- comment -%} ══ SUB/WAVE RADIO · full ══ {%- endcomment -%}
-{% assign shows_l    = IDX_0.shows    | default: shows %}
-{% assign personas_l = IDX_0.personas | default: personas %}
-{% assign grid       = IDX_0.schedule | default: schedule %}
-{% assign np         = IDX_1 %}
-
-{%- comment -%} form fields: documented path first, bare name as fallback {%- endcomment -%}
 {% assign cf = trmnl.plugin_settings.custom_fields_values %}
 {% assign station_url  = cf.station_url  | default: station_url %}
 {% assign station_name = cf.station_name | default: station_name %}
 {% assign subtitle     = cf.subtitle     | default: subtitle %}
 {% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
-{% assign show_avatars = cf.show_avatars | default: show_avatars %}
+{% assign show_avatars = cf.show_avatars | default: show_avatars | default: 'yes' %}
 {% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
+{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_fs = 16 %}{% assign t_lh = '1.50' %}{% assign t_clamp = 9 %}
-  {% when 'sm' %}{% assign t_fs = 13 %}{% assign t_lh = '1.42' %}{% assign t_clamp = 13 %}
-  {% when 'xs' %}{% assign t_fs = 12 %}{% assign t_lh = '1.38' %}{% assign t_clamp = 15 %}
-  {% else %}       {% assign t_fs = 14 %}{% assign t_lh = '1.48' %}{% assign t_clamp = 11 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}
 {% endcase %}
+
+{%- comment -%} DJ artwork treatment {%- endcomment -%}
+{% assign av_on = true %}
+{% assign av_cls = 'image--cover image-dither' %}
+{% assign av_style = '' %}
+{% case show_avatars %}
+  {% when 'no' %}{% assign av_on = false %}
+  {% when 'outline' %}{% assign av_cls = 'image--cover image-dither image-stroke image-stroke--black image-stroke--small' %}
+  {% when 'contrast' %}{% assign av_style = 'filter:grayscale(1) contrast(1.75) brightness(1.04)' %}
+{% endcase %}
+
+{% assign shows_l    = IDX_0.shows    | default: shows %}
+{% assign personas_l = IDX_0.personas | default: personas %}
+{% assign grid       = IDX_0.schedule | default: schedule %}
+{% assign np         = IDX_1 %}
 
 {% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
 {% assign base = "https://" | append: host | append: "/api" %}
@@ -44,7 +53,6 @@
 {% assign tomorrow = grid[tm_key] %}
 {% assign current_id = today[hour_now] %}
 
-{%- comment -%} ── current block bounds ── {%- endcomment -%}
 {% assign cur_start = 0 %}
 {% for h in (0..hour_now) %}
   {% if today[h] != current_id %}{% assign cur_start = h | plus: 1 %}{% endif %}
@@ -57,7 +65,6 @@
   {% endunless %}
 {% endfor %}
 
-{%- comment -%} ── midnight merge + next block ── {%- endcomment -%}
 {% assign tm_skip = 0 %}
 {% assign end_hour = cur_end %}
 {% assign next_id = nil %}
@@ -102,45 +109,42 @@
 {% assign vmax = 6 %}
 
 <div class="layout">
-  <div style="display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;gap:5px">
+  <div class="flex flex--col h--full gap--xsmall">
 
-    <div style="flex-shrink:0">
-      <div style="border-top:3px solid #000;border-bottom:1px solid #000;padding:2px 0;text-align:center">
-        <span class="title" style="letter-spacing:2px">{{ st_name | upcase | truncate: 18 }}</span>
+    <div class="flex flex--col">
+      <div class="flex flex--center-x">
+        <span class="title title--small" data-clamp="1">{{ st_name | upcase }}</span>
       </div>
-      <div style="border-bottom:3px double #000;padding:1px 0;text-align:center">
-        <span style="font-size:11px;font-weight:bold;letter-spacing:1px">{{ local_ts | date: '%A, %B %-d' | upcase }}</span>
+      <div class="divider"></div>
+      <div class="flex flex--center-x py--0.5">
+        <span class="label label--small">{{ local_ts | date: '%A, %B %-d' | upcase }}</span>
       </div>
+      <div class="divider"></div>
     </div>
 
     {% if on_air %}
-      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;flex-shrink:0">
-        {% if show_avatars != 'no' and dj.avatar %}
+      <div class="flex flex--col flex--center-x gap--xsmall">
+        {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="image-dither" src="{{ av }}" style="width:96px;height:96px;object-fit:cover;border:1px solid #000;padding:2px" />
+          <img class="{{ av_cls }} w--[96px] h--[96px]" src="{{ av }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
         {% endif %}
-        <div style="background:#000;padding:1px 8px">
-          <span class="label label--small" style="color:#fff;letter-spacing:2px">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-        </div>
-        <span style="font-size:18px;font-weight:bold;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ on_air.name }}</span>
-        {% if dj.name %}<span style="font-size:12px;letter-spacing:1px">WITH {{ dj.name | upcase }}</span>{% endif %}
+        <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+        <span class="title title--small text--center" data-clamp="2">{{ on_air.name }}</span>
+        {% if dj.name %}<span class="label label--small">WITH {{ dj.name | upcase }}</span>{% endif %}
       </div>
-
     {% else %}
-      <div style="flex-shrink:0;text-align:center;padding:10px 0;border-bottom:1px solid #000">
-        <div style="background:#000;padding:1px 8px;display:inline-block">
-          <span class="label label--small" style="color:#fff;letter-spacing:2px">UNSCHEDULED</span>
-        </div>
-
+      <div class="flex flex--col flex--center-x gap--xsmall">
+        <span class="label label--small label--filled">UNSCHEDULED</span>
       </div>
     {% endif %}
 
-    <span class="label label--small" style="letter-spacing:2px;border-bottom:2px solid #000;padding-bottom:2px;flex-shrink:0">UP NEXT</span>
-    <div style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+    <div class="divider"></div>
+    <span class="label label--small">UP NEXT</span>
+
+    <div class="flex flex--col grow gap--xsmall" data-overflow="true">
       {% assign vrows = 0 %}
       {% assign tm_from = 0 %}
-      {% assign start_h = cur_start | plus: 0 %}
-      {% for h in (start_h..23) %}
+      {% for h in (cur_start..23) %}
         {% if vrows < vmax %}
           {% assign id_h = today[h] %}
           {% if id_h and id_h != current_id %}
@@ -170,13 +174,14 @@
               {% assign gs = shows_l | find_by: 'id', id_h %}
               {% if gs %}
                 {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                <div style="display:flex;gap:6px;padding:3px 2px;border-bottom:1px dotted #000;align-items:flex-start">
-                  <span style="font-size:11px;font-weight:bold;min-width:76px;flex-shrink:0;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
-                  <div style="min-width:0">
-                    <span style="font-size:13px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ gs.name | split: " ·" | first }}</span>
-                    {% if gdj.name %}<span style="font-size:10px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                <div class="flex flex--row gap--small">
+                  <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                  <div class="flex flex--col">
+                    <span class="title title--small" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
+                    {% if gdj.name %}<span class="description text--small" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                   </div>
                 </div>
+                <div class="divider"></div>
                 {% assign vrows = vrows | plus: 1 %}
               {% endif %}
             {% endif %}
@@ -205,13 +210,14 @@
                 {% assign gs = shows_l | find_by: 'id', id_h %}
                 {% if gs %}
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                  <div style="display:flex;gap:6px;padding:3px 2px;border-bottom:1px dotted #000;align-items:flex-start">
-                    <span style="font-size:11px;font-weight:bold;min-width:76px;flex-shrink:0;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
-                    <div style="min-width:0">
-                      <span style="font-size:13px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ gs.name | split: " ·" | first }}</span>
-                      {% if gdj.name %}<span style="font-size:10px;display:block;line-height:1.25">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}
+                  <div class="flex flex--row gap--small">
+                    <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                    <div class="flex flex--col">
+                      <span class="title title--small" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
+                      {% if gdj.name %}<span class="description text--small" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}
                     </div>
                   </div>
+                  <div class="divider"></div>
                   {% assign vrows = vrows | plus: 1 %}
                 {% endif %}
               {% endif %}

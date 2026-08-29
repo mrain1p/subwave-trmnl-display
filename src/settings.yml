@@ -67,10 +67,12 @@ custom_fields:
 - keyname: show_avatars
   field_type: select
   name: DJ Artwork
-  description: Persona avatars are loaded from your station. Turn this off if your server is slow to respond or you prefer a text-only board.
+  description: How persona avatars are treated. Dark or low-contrast art dithers into noise on a 1-bit panel &mdash; <strong>High contrast</strong> pushes the background to solid black first, <strong>Outlined</strong> adds a hairline edge so the portrait separates from the page.
   options:
-  - Show: 'yes'
-  - Hide: 'no'
+  - Dithered: 'yes'
+  - High contrast: contrast
+  - Outlined: outline
+  - Hidden: 'no'
   default: 'yes'
   group: Display Options
 - keyname: topic_size
@@ -81,7 +83,6 @@ custom_fields:
   - Large: lg
   - Normal: md
   - Small: sm
-  - Extra small: xs
   default: md
   group: Display Options
 - keyname: guide_rows
