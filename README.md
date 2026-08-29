@@ -110,18 +110,32 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # repo-specific checks: settings.yml parses, no undefined Liquid
+      # variables, no inline styles, no off-scale size tokens, no merge markers
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python tools/check.py
+
+      # TRMNL's own linter -- the same checks the submission reviewer runs
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - run: gem install trmnl_preview
+      # Pin the major. `lint` and `push` do not exist before 0.9.0, and 0.9+
+      # needs Ruby >= 3.4 -- an unpinned install silently falls back to 0.3.2,
+      # which fails with: Could not find command "lint".
+      - run: gem install trmnl_preview -v "~> 0.11"
+      - run: trmnlp version
       - run: trmnlp lint
 
   push:
-    needs: lint
+    needs: check
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -129,7 +143,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - run: gem install trmnl_preview
+      - run: gem install trmnl_preview -v "~> 0.11"
       - run: trmnlp push --force
         env:
           TRMNL_API_KEY: ${{ secrets.TRMNL_API_KEY }}
