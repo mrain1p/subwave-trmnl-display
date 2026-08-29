@@ -140,7 +140,7 @@
             <img class="image image-dither image--cover {{ av_extra }} w--[88px] h--[88px] shrink-0" src="{{ av }}" />
           {% endif %}
           <div class="flex flex--col gap--xsmall">
-            <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+            <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
             <span class="title title--small" data-clamp="2">{{ on_air.name }}</span>
             {% if dj.name %}<span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
           </div>
@@ -152,7 +152,7 @@
         </div>
       {% else %}
         <div class="grow flex flex--col flex--center gap--small">
-          <span class="label label--small label--filled">UNSCHEDULED</span>
+          <span class="label label--small label--filled self--start">UNSCHEDULED</span>
           <span class="description text--center">Rotation is running unattended right now.</span>
         </div>
       {% endif %}
@@ -167,7 +167,7 @@
             <img class="image image-dither image--cover {{ av_extra }} w--[52px] h--[52px] shrink-0" src="{{ nav }}" />
           {% endif %}
           <div class="flex flex--col gap--xsmall">
-            <span class="label label--small label--outline">COMING UP &middot; {{ next_start_f }}</span>
+            <span class="label label--small label--outline self--start">COMING UP &middot; {{ next_start_f }}</span>
             <span class="title title--small" data-clamp="1">{{ up_next.name }}</span>
             {% if ndj.name %}<span class="description" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
           </div>
@@ -176,7 +176,6 @@
     </div>
 
     <div class="divider--v portrait:hidden"></div>
-    <div class="divider landscape:hidden"></div>
 
     <div class="flex flex--col grow pl--2 portrait:pl--0">
       <span class="label label--small">PROGRAMMING GUIDE</span>
@@ -230,7 +229,7 @@
                   {% assign short_name = gs.name | split: " ·" | first %}
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                   {% if h == cur_start %}
-                    <div class="flex flex--row gap--small bg--black rounded--xsmall px--1.5 py--1">
+                    <div class="flex flex--row gap--small bg--black rounded--xsmall px--1.5 py--1 shrink-0">
                       <span class="label label--small value--tnums text--white w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col">
                         <span class="title title--small text--white" data-clamp="1">&#9654; {{ short_name }}</span>
@@ -238,7 +237,7 @@
                       </div>
                     </div>
                   {% else %}
-                    <div class="flex flex--row gap--small px--1.5">
+                    <div class="flex flex--row gap--small px--1.5 shrink-0">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col">
                         <span class="title title--small" data-clamp="1">{{ short_name }}</span>
@@ -283,7 +282,7 @@
                   {% if gs %}
                     {% assign short_name = gs.name | split: " ·" | first %}
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                    <div class="flex flex--row gap--small px--1.5">
+                    <div class="flex flex--row gap--small px--1.5 shrink-0">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col">
                         <span class="title title--small" data-clamp="1">{{ short_name }}</span>

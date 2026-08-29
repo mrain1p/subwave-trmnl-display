@@ -184,7 +184,7 @@ small face readable.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Current release: **1.0.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current release: **1.1.0**.
 
 ## License
 

@@ -136,7 +136,7 @@
           <img class="image image-dither image--cover {{ av_extra }} w--[72px] h--[72px] portrait:w--[56px] portrait:h--[56px] shrink-0" src="{{ av }}" />
         {% endif %}
         <div class="flex flex--col gap--xsmall">
-          <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+          <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
           <span class="title title--small" data-clamp="1">{{ on_air.name }}</span>
           {% if dj.name %}<span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
           {% if on_air.topic %}<span class="description text--small" data-clamp="2" data-clamp-portrait="3">{{ on_air.topic }}</span>{% endif %}
@@ -144,7 +144,7 @@
       </div>
     {% else %}
       <div class="flex flex--col gap--xsmall">
-        <span class="label label--small label--filled">UNSCHEDULED</span>
+        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
         <span class="description">Rotation is running unattended.</span>
       </div>
     {% endif %}
@@ -152,7 +152,7 @@
     {% if up_next %}
       <div class="divider"></div>
       <div class="flex flex--row portrait:flex--col gap--small flex--center-y portrait:flex--left">
-        <span class="label label--small label--outline shrink-0">NEXT &middot; {{ next_start_f }}</span>
+        <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
         <span class="title title--small" data-clamp="1">{{ up_next.name }}</span>
         {% if ndj.name %}<span class="description shrink-0" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
       </div>

@@ -139,13 +139,13 @@
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
           <img class="image image-dither image--cover {{ av_extra }} w--[96px] h--[96px] portrait:w--[72px] portrait:h--[72px]" src="{{ av }}" />
         {% endif %}
-        <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+        <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
         <span class="title title--small text--center" data-clamp="2">{{ on_air.name }}</span>
         {% if dj.name %}<span class="label label--small">WITH {{ dj.name | upcase }}</span>{% endif %}
       </div>
     {% else %}
       <div class="flex flex--col flex--center-x gap--xsmall">
-        <span class="label label--small label--filled">UNSCHEDULED</span>
+        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
       </div>
     {% endif %}
 
@@ -185,7 +185,7 @@
               {% assign gs = shows_l | find_by: 'id', id_h %}
               {% if gs %}
                 {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                <div class="flex flex--row gap--small">
+                <div class="flex flex--row gap--small shrink-0">
                   <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                   <div class="flex flex--col">
                     <span class="title title--small" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
