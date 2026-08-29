@@ -1,92 +1,105 @@
 ---
-id: 460454
-name: SUB/WAVE Radio
-description: SUB/WAVE schedule + now playing
 strategy: polling
-polling_verb: get
-polling_url: |-
-  {{ station_url }}/api/schedule
-  {{ station_url }}/api/now-playing
-polling_headers: "{}"
-polling_body: "{}"
-refresh_interval: 15
 no_screen_padding: 'no'
 dark_mode: 'no'
 static_data: ''
+polling_verb: get
 framework_version: 3.1.2
 serverless_language: ''
+polling_url: "{{ station_url }}/api/schedule\r\n{{ station_url }}/api/now-playing"
+polling_headers: "{}"
+polling_body: "{}"
+id: 460475
 oauth_enabled: 'false'
 oauth_pkce_enabled: 'no'
+oauth_authorize_url: ''
+oauth_token_url: ''
+oauth_scopes: ''
+oauth_scope_separator: ''
+oauth_refresh_url: ''
+oauth_auth_params: ''
+oauth_token_headers: ''
+oauth_token_site: ''
+oauth_token_params: ''
+oauth_token_request_auth_method: ''
+oauth_body_format: ''
+oauth_token_response_metadata: ''
+oauth_authorization_method: ''
+oauth_refresh_params: ''
+oauth_token_field_name: ''
+oauth_expiry_field_name: ''
+oauth_expiry_strategy: ''
+oauth_fixed_expiry_ms: ''
 custom_fields:
-  - keyname: station_url
-    field_type: url
-    name: Station URL
-    description: The public address of your SUB/WAVE station &mdash; the same origin your web player uses. Must be reachable from the public internet (a LAN address will not work, since TRMNL fetches the data from its own servers).
-    help_text: Origin only, with <strong>no trailing slash</strong> &mdash; e.g. <code>https://radio.yourstation.com</code>, not <code>.../</code>.
-    placeholder: https://radio.yourstation.com
-  - keyname: station_name
-    field_type: string
-    name: Station Name
-    description: Leave blank to use the name your station already reports. Set this only if you want different wordmark text on the screen.
-    placeholder: Pulled from your station
-    maxlength: 24
-    optional: true
-  - keyname: subtitle
-    field_type: string
-    name: Masthead Subtitle
-    description: The line under your station name. Leave blank and it uses the tagline your station reports; type your own to show a web address instead.
-    help_text: e.g. <code>LIVE @ RADIO.YOURSTATION.COM</code>
-    placeholder: Uses your station's tagline
-    maxlength: 42
-    optional: true
-    group: Display Options
-
-  - keyname: tz_offset
-    field_type: number
-    name: Station UTC Offset
-    description: Only needed if your TRMNL is in a different time zone than the station. Your schedule grid is published in station-local time, so leave this blank and the device's own time zone is used.
-    help_text: Whole or half hours, e.g. <code>8</code> for UTC+8, <code>-5</code> for UTC-5.
-    placeholder: Uses device time zone
-    min: -12
-    max: 14
-    step: 0.5
-    optional: true
-    group: Display Options
-  - keyname: show_avatars
-    field_type: select
-    name: DJ Artwork
-    description: Persona avatars are loaded from your station. Turn this off if your server is slow to respond or you prefer a text-only board.
-    options:
-      - Show: 'yes'
-      - Hide: 'no'
-    default: 'yes'
-    group: Display Options
-  - keyname: topic_size
-    field_type: select
-    name: Show Description Size
-    description: How much of the show description fits on the full-screen layout before it gets cut off. Drop a step if your shows have long write-ups.
-    options:
-      - Large: lg
-      - Normal: md
-      - Small: sm
-      - Extra small: xs
-    default: md
-    group: Display Options
-
-  - keyname: guide_rows
-    field_type: number
-    name: Programming Guide Length
-    description: How many upcoming blocks to list in the guide column on the full-screen layout.
-    default: 10
-    min: 3
-    max: 14
-    step: 1
-    group: Display Options
-  - keyname: about
-    field_type: author_bio
-    name: About This Plugin
-    description: Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Source, issues and releases on <a href="https://github.com/mrain1p/subwave-trmnl-display">GitHub</a>.
-    category: entertainment,art
-    learn_more_url: https://www.getsubwave.com/
-    github_url: https://github.com/mrain1p/subwave-trmnl-display
-    email_address: 220342547+mrain1p@users.noreply.github.com
+- keyname: station_url
+  field_type: url
+  name: Station URL
+  description: The public address of your SUB/WAVE station &mdash; the same origin your web player uses. Must be reachable from the public internet (a LAN address will not work, since TRMNL fetches the data from its own servers).
+  help_text: Origin only, with <strong>no trailing slash</strong> &mdash; e.g. <code>https://radio.yourstation.com</code>, not <code>.../</code>.
+  placeholder: https://radio.yourstation.com
+- keyname: station_name
+  field_type: string
+  name: Station Name
+  description: Leave blank to use the name your station already reports. Set this only if you want different wordmark text on the screen.
+  placeholder: Pulled from your station
+  maxlength: 24
+  optional: true
+- keyname: subtitle
+  field_type: string
+  name: Masthead Subtitle
+  description: The line under your station name. Leave blank and it uses the tagline your station reports; type your own to show a web address instead.
+  help_text: e.g. <code>LIVE @ RADIO.YOURSTATION.COM</code>
+  placeholder: Uses your station's tagline
+  maxlength: 42
+  optional: true
+  group: Display Options
+- keyname: tz_offset
+  field_type: number
+  name: Station UTC Offset
+  description: Only needed if your TRMNL is in a different time zone than the station. Your schedule grid is published in station-local time, so leave this blank and the device's own time zone is used.
+  help_text: Whole or half hours, e.g. <code>8</code> for UTC+8, <code>-5</code> for UTC-5.
+  placeholder: Uses device time zone
+  min: -12
+  max: 14
+  step: 0.5
+  optional: true
+  group: Display Options
+- keyname: show_avatars
+  field_type: select
+  name: DJ Artwork
+  description: Persona avatars are loaded from your station. Turn this off if your server is slow to respond or you prefer a text-only board.
+  options:
+  - Show: 'yes'
+  - Hide: 'no'
+  default: 'yes'
+  group: Display Options
+- keyname: topic_size
+  field_type: select
+  name: Show Description Size
+  description: How much of the show description fits on the full-screen layout before it gets cut off. Drop a step if your shows have long write-ups.
+  options:
+  - Large: lg
+  - Normal: md
+  - Small: sm
+  - Extra small: xs
+  default: md
+  group: Display Options
+- keyname: guide_rows
+  field_type: number
+  name: Programming Guide Length
+  description: How many upcoming blocks to list in the guide column on the full-screen layout.
+  default: 10
+  min: 3
+  max: 14
+  step: 1
+  group: Display Options
+- keyname: about
+  field_type: author_bio
+  name: About This Plugin
+  description: Built for <a href="https://www.getsubwave.com/">SUB/WAVE</a>, the self-hosted internet radio stack with AI DJs.<br/>Works with any SUB/WAVE deployment &mdash; no account or API key required.
+  category: entertainment,art
+  learn_more_url: https://www.getsubwave.com/
+  github_url: https://github.com/getsubwave
+name: SUB/WAVE Radio
+description: SUB/WAVE schedule + now playing
+refresh_interval: 15
