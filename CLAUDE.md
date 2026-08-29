@@ -230,14 +230,22 @@ Don't "fix" these without reading why:
 
 ## Open items
 
-1. **Verify the first green CI run actually reached TRMNL.** The workflow now
-   pins `gem install trmnl_preview -v "~> 0.11"` in both jobs, so `lint` and
-   `push` can resolve their commands. Confirm the `push` job succeeded, then
-   check the bot's next sync pulls 3.3.0 *down* rather than reverting it again.
-   (There was never a `workflow-trmnl.yml` — it was pasted into chat, not the
-   repo. The pin is committed directly now.)
-2. **Confirm `TRMNL_API_KEY` is set** under Settings → Secrets and variables →
-   Actions, and that the `push` job actually succeeds once pinned.
+1. **CI lint — done.** `bundle exec trmnlp lint` reports `✓ All checks passed!`
+   as of `023c724`. It needed three things, not the one the old note claimed:
+   the `~> 0.11` pin, installing through **Bundler**, and `ruby-version: "4.0"`.
+   See the linter section above for why the Ruby floor is invisible in the
+   gemspec. There was never a `workflow-trmnl.yml` — it was pasted into chat,
+   not the repo; the workflow is committed directly now.
+2. **`TRMNL_API_KEY` is not set, and it blocks everything downstream.** Not
+   "confirm it" — confirmed absent: the `push` job logs `TRMNL_API_KEY:` with
+   no value and dies on ``please run `trmnlp login` ``, and `gh secret list`
+   returns nothing at all for the repo. Set it with `gh secret set
+   TRMNL_API_KEY` (it prompts, so the key stays out of shell history) or via
+   Settings → Secrets and variables → Actions, then rerun the failed job.
+
+   **Until that push succeeds, the repo has still never sent anything to
+   TRMNL** — which is exactly the condition that let the bot revert `774d217`.
+   The 3.3.0 restore is safe in git, but it is not safe from the next sync.
 3. **Check the plugin's Shared tab** contains `.sw-contrast`. If the sync does
    not carry `src/shared.liquid`, the High contrast artwork option silently does
    nothing and should be removed.
