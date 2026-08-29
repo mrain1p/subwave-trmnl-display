@@ -1,0 +1,13 @@
+# Store all text with LF in the repository regardless of the checkout platform.
+* text=auto eol=lf
+
+# The launcher is a shell script run on Linux in CI and on macOS locally.
+# CRLF here breaks its shebang: "bad interpreter: /usr/bin/env bash^M".
+bin/trmnlp text eol=lf
+
+# Liquid and YAML are consumed by trmnlp on Linux.
+*.liquid text eol=lf
+*.yml    text eol=lf
+
+# Never touch binaries.
+*.png binary

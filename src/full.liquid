@@ -1,0 +1,293 @@
+{%- comment -%} ══ SUB/WAVE RADIO · full ══ {%- endcomment -%}
+{% assign shows_l    = IDX_0.shows    | default: shows %}
+{% assign personas_l = IDX_0.personas | default: personas %}
+{% assign grid       = IDX_0.schedule | default: schedule %}
+{% assign np         = IDX_1 %}
+
+{%- comment -%} form fields: documented path first, bare name as fallback {%- endcomment -%}
+{% assign cf = trmnl.plugin_settings.custom_fields_values %}
+{% assign station_url  = cf.station_url  | default: station_url %}
+{% assign station_name = cf.station_name | default: station_name %}
+{% assign subtitle     = cf.subtitle     | default: subtitle %}
+{% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
+{% assign show_avatars = cf.show_avatars | default: show_avatars %}
+{% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
+{% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
+
+{% case topic_size %}
+  {% when 'lg' %}{% assign t_fs = 16 %}{% assign t_lh = '1.50' %}{% assign t_clamp = 9 %}
+  {% when 'sm' %}{% assign t_fs = 13 %}{% assign t_lh = '1.42' %}{% assign t_clamp = 13 %}
+  {% when 'xs' %}{% assign t_fs = 12 %}{% assign t_lh = '1.38' %}{% assign t_clamp = 15 %}
+  {% else %}       {% assign t_fs = 14 %}{% assign t_lh = '1.48' %}{% assign t_clamp = 11 %}
+{% endcase %}
+
+{% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
+{% assign base = "https://" | append: host | append: "/api" %}
+
+{% assign st_name = station_name | strip %}
+{% if st_name == blank %}{% assign st_name = np.dj.station %}{% endif %}
+{% if st_name == blank %}{% assign st_name = "SUB/WAVE" %}{% endif %}
+{% assign st_tag = subtitle | strip %}
+{% if st_tag == blank %}{% assign st_tag = np.dj.tagline %}{% endif %}
+{% if st_tag == blank %}{% assign st_tag = host %}{% endif %}
+
+{% assign off_s = trmnl.user.utc_offset %}
+{% if tz_offset != blank %}{% assign off_s = tz_offset | times: 3600 %}{% endif %}
+{% assign local_ts = trmnl.system.timestamp_utc | plus: off_s %}
+{% assign dow = local_ts | date: '%w' %}
+{% assign hour_now = local_ts | date: '%H' | plus: 0 %}
+{% assign max_rows = guide_rows | default: 10 | plus: 0 %}
+
+{% assign today = grid[dow] %}
+{% assign dow_n = dow | plus: 0 %}
+{% assign tm_key = dow_n | plus: 1 | modulo: 7 | append: "" %}
+{% assign tomorrow = grid[tm_key] %}
+{% assign current_id = today[hour_now] %}
+
+{%- comment -%} ── current block bounds ── {%- endcomment -%}
+{% assign cur_start = 0 %}
+{% for h in (0..hour_now) %}
+  {% if today[h] != current_id %}{% assign cur_start = h | plus: 1 %}{% endif %}
+{% endfor %}
+{% assign cur_end = 24 %}
+{% assign found = false %}
+{% for h in (hour_now..23) %}
+  {% unless found %}
+    {% if today[h] != current_id %}{% assign cur_end = h %}{% assign found = true %}{% endif %}
+  {% endunless %}
+{% endfor %}
+
+{%- comment -%} ── midnight merge + next block ── {%- endcomment -%}
+{% assign tm_skip = 0 %}
+{% assign end_hour = cur_end %}
+{% assign next_id = nil %}
+{% assign next_start = 0 %}
+{% if cur_end < 24 %}
+  {% assign next_id = today[cur_end] %}
+  {% assign next_start = cur_end %}
+{% else %}
+  {% if tomorrow[0] == current_id %}
+    {% assign tm_end = 24 %}
+    {% assign found3 = false %}
+    {% for h in (0..23) %}
+      {% unless found3 %}
+        {% if tomorrow[h] != current_id %}{% assign tm_end = h %}{% assign found3 = true %}{% endif %}
+      {% endunless %}
+    {% endfor %}
+    {% assign end_hour = tm_end %}
+    {% assign tm_skip = tm_end %}
+    {% assign next_id = tomorrow[tm_end] %}
+    {% assign next_start = tm_end %}
+  {% else %}
+    {% assign found2 = false %}
+    {% for h in (0..23) %}
+      {% unless found2 %}
+        {% if tomorrow[h] != current_id %}
+          {% assign next_id = tomorrow[h] %}
+          {% assign next_start = h %}
+          {% assign found2 = true %}
+        {% endif %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+
+{% capture cur_start_f %}{% assign x = cur_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if cur_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+{% assign ce = end_hour | modulo: 24 %}
+{% capture cur_end_f %}{% assign x = ce | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if ce >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+{% capture next_start_f %}{% assign x = next_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if next_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+
+<div class="layout">
+  <div style="display:flex;height:100%;width:100%;overflow:hidden">
+
+    {%- comment -%} ═══ LEFT COLUMN ═══ {%- endcomment -%}
+    <div style="width:55%;padding-right:10px;display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden">
+
+      <div style="flex-shrink:0">
+        <div style="border-top:4px solid #000;border-bottom:1px solid #000;padding:3px 0 1px;text-align:center">
+          <span class="title title--large" style="letter-spacing:3px">{{ st_name | upcase | truncate: 22 }}</span>
+        </div>
+        <div style="border-bottom:3px double #000;padding:2px 0;text-align:center">
+          <span style="font-size:12px;font-weight:bold;letter-spacing:.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ st_tag | upcase | truncate: 42 }} &middot; {{ local_ts | date: '%a, %b %-d' | upcase }}</span>
+        </div>
+      </div>
+
+      {%- comment -%} ── ON AIR ── {%- endcomment -%}
+      {% assign on_air = shows_l | find_by: 'id', current_id %}
+      {% if on_air %}
+        {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
+        <div style="display:flex;gap:10px;align-items:center;flex-shrink:0">
+          {% if show_avatars != 'no' and dj.avatar %}
+            {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
+            <img class="image-dither" src="{{ av }}" style="width:88px;height:88px;object-fit:cover;flex-shrink:0;border:1px solid #000;padding:2px" />
+          {% endif %}
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+            <div style="background:#000;padding:2px 8px;align-self:flex-start">
+              <span class="label label--small" style="color:#fff;letter-spacing:2px">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+            </div>
+            <span class="title" data-clamp="2">{{ on_air.name }}</span>
+            {% if dj.name %}<span style="font-size:13px;font-weight:bold;letter-spacing:2px">WITH {{ dj.name | upcase }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #000;padding-top:6px;flex:1;min-height:0;overflow:hidden">
+          <span style="font-size:{{ t_fs }}px;line-height:{{ t_lh }};display:-webkit-box;-webkit-line-clamp:{{ t_clamp }};-webkit-box-orient:vertical;overflow:hidden">{{ on_air.topic }}</span>
+        </div>
+      {% else %}
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;border-top:1px solid #000;border-bottom:1px solid #000">
+          <div style="background:#000;padding:2px 8px">
+            <span class="label label--small" style="color:#fff;letter-spacing:2px">UNSCHEDULED</span>
+          </div>
+          <span style="font-size:14px">Rotation is running unattended right now.</span>
+        </div>
+      {% endif %}
+
+      {%- comment -%} ── COMING UP ── {%- endcomment -%}
+      {% assign up_next = shows_l | find_by: 'id', next_id %}
+      {% if up_next %}
+        {% assign ndj = personas_l | find_by: 'id', up_next.personaId %}
+        <div style="border-top:2px solid #000;padding-top:6px;flex-shrink:0">
+          <div style="display:flex;gap:10px;align-items:center">
+            {% if show_avatars != 'no' and ndj.avatar %}
+              {% if ndj.avatar contains '://' %}{% assign nav = ndj.avatar %}{% else %}{% assign nav = base | append: ndj.avatar %}{% endif %}
+              <img class="image-dither" src="{{ nav }}" style="width:52px;height:52px;object-fit:cover;flex-shrink:0;border:1px solid #000" />
+            {% endif %}
+            <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <div style="border:1px solid #000;padding:1px 6px;align-self:flex-start">
+                <span class="label label--small" style="letter-spacing:2px">COMING UP &middot; {{ next_start_f }}</span>
+              </div>
+              <span style="font-size:15px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ up_next.name }}</span>
+              {% if ndj.name %}<span style="font-size:12px;display:block">with {{ ndj.name }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div style="width:1px;background:#000;flex-shrink:0"></div>
+
+    {%- comment -%} ═══ RIGHT COLUMN: GUIDE ═══ {%- endcomment -%}
+    <div style="width:45%;padding-left:10px;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <span class="label" style="letter-spacing:3px;border-bottom:2px solid #000;padding-bottom:3px;flex-shrink:0">PROGRAMMING GUIDE</span>
+
+      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;min-height:0;padding-bottom:4px">
+        {% assign rows = 0 %}
+        {% assign tm_from = tm_skip %}
+
+        {%- comment -%} ── today, from current forward ── {%- endcomment -%}
+        {% for h in (cur_start..23) %}
+          {% if rows < max_rows %}
+            {% assign id_h = today[h] %}
+            {% if id_h %}
+              {% assign is_start = false %}
+              {% if h == cur_start %}
+                {% assign is_start = true %}
+              {% else %}
+                {% assign hp = h | minus: 1 %}
+                {% if today[hp] != id_h %}{% assign is_start = true %}{% endif %}
+              {% endif %}
+
+              {% if is_start %}
+                {% if h == cur_start %}
+                  {% assign b_end = end_hour %}
+                {% else %}
+                  {% assign b_end = 24 %}
+                  {% assign done = false %}
+                  {% for h2 in (h..23) %}
+                    {% unless done %}
+                      {% if today[h2] != id_h %}{% assign b_end = h2 %}{% assign done = true %}{% endif %}
+                    {% endunless %}
+                  {% endfor %}
+                {% endif %}
+                {% if b_end == 24 and h != cur_start and tomorrow[0] == id_h %}
+                  {% assign tm_end2 = 24 %}
+                  {% assign done2 = false %}
+                  {% for h2 in (0..23) %}
+                    {% unless done2 %}
+                      {% if tomorrow[h2] != id_h %}{% assign tm_end2 = h2 %}{% assign done2 = true %}{% endif %}
+                    {% endunless %}
+                  {% endfor %}
+                  {% assign b_end = tm_end2 %}
+                  {% assign tm_from = tm_end2 %}
+                {% endif %}
+                {% capture t1 %}{% assign x = h | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if h >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                {% assign be = b_end | modulo: 24 %}
+                {% capture t2 %}{% assign x = be | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if be >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+
+                {% assign gs = shows_l | find_by: 'id', id_h %}
+                {% if gs %}
+                  {% assign short_name = gs.name | split: " &middot;" | first | split: " ·" | first %}
+                  {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
+                  {% if h == cur_start %}
+                    <div style="display:flex;gap:8px;background:#000;padding:3px 6px;align-items:flex-start">
+                      <span style="color:#fff;font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div style="min-width:0">
+                        <span style="color:#fff;font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">&#9654; {{ short_name }}</span>
+                        {% if gdj.name %}<span style="color:#fff;font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                      </div>
+                    </div>
+                  {% else %}
+                    <div style="display:flex;gap:8px;padding:3px 6px;border-bottom:1px dotted #000;align-items:flex-start">
+                      <span style="font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div style="min-width:0">
+                        <span style="font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ short_name }}</span>
+                        {% if gdj.name %}<span style="font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+                  {% assign rows = rows | plus: 1 %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+
+        {%- comment -%} ── continue into tomorrow ── {%- endcomment -%}
+        {% if rows < max_rows %}
+          {% for h in (tm_from..23) %}
+            {% if rows < max_rows %}
+              {% assign id_h = tomorrow[h] %}
+              {% if id_h %}
+                {% assign is_start = false %}
+                {% if h == tm_from %}
+                  {% assign is_start = true %}
+                {% else %}
+                  {% assign hp = h | minus: 1 %}
+                  {% if tomorrow[hp] != id_h %}{% assign is_start = true %}{% endif %}
+                {% endif %}
+
+                {% if is_start %}
+                  {% assign b_end = 24 %}
+                  {% assign done = false %}
+                  {% for h2 in (h..23) %}
+                    {% unless done %}
+                      {% if tomorrow[h2] != id_h %}{% assign b_end = h2 %}{% assign done = true %}{% endif %}
+                    {% endunless %}
+                  {% endfor %}
+                  {% capture t1 %}{% assign x = h | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if h >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                  {% assign be = b_end | modulo: 24 %}
+                  {% capture t2 %}{% assign x = be | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if be >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+
+                  {% assign gs = shows_l | find_by: 'id', id_h %}
+                  {% if gs %}
+                    {% assign short_name = gs.name | split: " &middot;" | first | split: " ·" | first %}
+                    {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
+                    <div style="display:flex;gap:8px;padding:3px 6px;border-bottom:1px dotted #000;align-items:flex-start">
+                      <span style="font-size:12px;font-weight:bold;min-width:84px;flex-shrink:0;padding-top:2px;line-height:1.25">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div style="min-width:0">
+                        <span style="font-size:14px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25">{{ short_name }}</span>
+                        {% if gdj.name %}<span style="font-size:11px;display:block;line-height:1.25">with {{ gdj.name }}</span>{% endif %}
+                      </div>
+                    </div>
+                    {% assign rows = rows | plus: 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,22 @@
+---
+watch:
+  - src
+  - .trmnlp.yml
+
+# Values used only by the local preview server. Real installs get these from
+# the plugin's form fields; nothing here is uploaded to TRMNL.
+custom_fields:
+  station_url: "{{ env.STATION_URL }}"
+  station_name: ""
+  subtitle: "LIVE @ RIVERSIDE.EXAMPLE.COM"
+  tz_offset: ""
+  show_avatars: "yes"
+  topic_size: "md"
+  guide_rows: 10
+
+time_zone: America/Los_Angeles
+
+variables:
+  trmnl:
+    plugin_settings:
+      instance_name: Riverside FM

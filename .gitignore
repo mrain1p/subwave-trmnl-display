@@ -1,0 +1,14 @@
+# trmnlp
+.trmnlp.local.yml
+tmp/
+*.zip
+
+# credentials — never commit your TRMNL API key
+.env
+.env.*
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

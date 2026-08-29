@@ -1,0 +1,31 @@
+name: TRMNL
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - run: gem install trmnl_preview
+      - run: trmnlp lint
+
+  push:
+    needs: lint
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+      - run: gem install trmnl_preview
+      - run: trmnlp push --force
+        env:
+          TRMNL_API_KEY: ${{ secrets.TRMNL_API_KEY }}

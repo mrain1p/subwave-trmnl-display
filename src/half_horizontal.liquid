@@ -1,0 +1,148 @@
+{%- comment -%} ══ SUB/WAVE RADIO · full ══ {%- endcomment -%}
+{% assign shows_l    = IDX_0.shows    | default: shows %}
+{% assign personas_l = IDX_0.personas | default: personas %}
+{% assign grid       = IDX_0.schedule | default: schedule %}
+{% assign np         = IDX_1 %}
+
+{%- comment -%} form fields: documented path first, bare name as fallback {%- endcomment -%}
+{% assign cf = trmnl.plugin_settings.custom_fields_values %}
+{% assign station_url  = cf.station_url  | default: station_url %}
+{% assign station_name = cf.station_name | default: station_name %}
+{% assign subtitle     = cf.subtitle     | default: subtitle %}
+{% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
+{% assign show_avatars = cf.show_avatars | default: show_avatars %}
+{% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
+{% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
+
+{% case topic_size %}
+  {% when 'lg' %}{% assign t_fs = 16 %}{% assign t_lh = '1.50' %}{% assign t_clamp = 9 %}
+  {% when 'sm' %}{% assign t_fs = 13 %}{% assign t_lh = '1.42' %}{% assign t_clamp = 13 %}
+  {% when 'xs' %}{% assign t_fs = 12 %}{% assign t_lh = '1.38' %}{% assign t_clamp = 15 %}
+  {% else %}       {% assign t_fs = 14 %}{% assign t_lh = '1.48' %}{% assign t_clamp = 11 %}
+{% endcase %}
+
+{% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
+{% assign base = "https://" | append: host | append: "/api" %}
+
+{% assign st_name = station_name | strip %}
+{% if st_name == blank %}{% assign st_name = np.dj.station %}{% endif %}
+{% if st_name == blank %}{% assign st_name = "SUB/WAVE" %}{% endif %}
+{% assign st_tag = subtitle | strip %}
+{% if st_tag == blank %}{% assign st_tag = np.dj.tagline %}{% endif %}
+{% if st_tag == blank %}{% assign st_tag = host %}{% endif %}
+
+{% assign off_s = trmnl.user.utc_offset %}
+{% if tz_offset != blank %}{% assign off_s = tz_offset | times: 3600 %}{% endif %}
+{% assign local_ts = trmnl.system.timestamp_utc | plus: off_s %}
+{% assign dow = local_ts | date: '%w' %}
+{% assign hour_now = local_ts | date: '%H' | plus: 0 %}
+{% assign max_rows = guide_rows | default: 10 | plus: 0 %}
+
+{% assign today = grid[dow] %}
+{% assign dow_n = dow | plus: 0 %}
+{% assign tm_key = dow_n | plus: 1 | modulo: 7 | append: "" %}
+{% assign tomorrow = grid[tm_key] %}
+{% assign current_id = today[hour_now] %}
+
+{%- comment -%} ── current block bounds ── {%- endcomment -%}
+{% assign cur_start = 0 %}
+{% for h in (0..hour_now) %}
+  {% if today[h] != current_id %}{% assign cur_start = h | plus: 1 %}{% endif %}
+{% endfor %}
+{% assign cur_end = 24 %}
+{% assign found = false %}
+{% for h in (hour_now..23) %}
+  {% unless found %}
+    {% if today[h] != current_id %}{% assign cur_end = h %}{% assign found = true %}{% endif %}
+  {% endunless %}
+{% endfor %}
+
+{%- comment -%} ── midnight merge + next block ── {%- endcomment -%}
+{% assign tm_skip = 0 %}
+{% assign end_hour = cur_end %}
+{% assign next_id = nil %}
+{% assign next_start = 0 %}
+{% if cur_end < 24 %}
+  {% assign next_id = today[cur_end] %}
+  {% assign next_start = cur_end %}
+{% else %}
+  {% if tomorrow[0] == current_id %}
+    {% assign tm_end = 24 %}
+    {% assign found3 = false %}
+    {% for h in (0..23) %}
+      {% unless found3 %}
+        {% if tomorrow[h] != current_id %}{% assign tm_end = h %}{% assign found3 = true %}{% endif %}
+      {% endunless %}
+    {% endfor %}
+    {% assign end_hour = tm_end %}
+    {% assign tm_skip = tm_end %}
+    {% assign next_id = tomorrow[tm_end] %}
+    {% assign next_start = tm_end %}
+  {% else %}
+    {% assign found2 = false %}
+    {% for h in (0..23) %}
+      {% unless found2 %}
+        {% if tomorrow[h] != current_id %}
+          {% assign next_id = tomorrow[h] %}
+          {% assign next_start = h %}
+          {% assign found2 = true %}
+        {% endif %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+
+{% capture cur_start_f %}{% assign x = cur_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if cur_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+{% assign ce = end_hour | modulo: 24 %}
+{% capture cur_end_f %}{% assign x = ce | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if ce >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+{% capture next_start_f %}{% assign x = next_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if next_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+
+{% assign on_air = shows_l | find_by: 'id', current_id %}
+{% assign dj = personas_l | find_by: 'id', on_air.personaId %}
+{% assign up_next = shows_l | find_by: 'id', next_id %}
+{% assign ndj = personas_l | find_by: 'id', up_next.personaId %}
+
+<div class="layout">
+  <div style="display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;gap:5px">
+
+    <div style="border-top:3px solid #000;border-bottom:1px solid #000;padding:2px 0;display:flex;justify-content:space-between;align-items:baseline;flex-shrink:0">
+      <span class="title" style="letter-spacing:2px">{{ st_name | upcase | truncate: 20 }}</span>
+      <span style="font-size:11px;font-weight:bold;letter-spacing:1px">{{ local_ts | date: '%a, %b %-d' | upcase }}</span>
+    </div>
+
+    {% if on_air %}
+      <div style="display:flex;gap:9px;align-items:center;min-height:0">
+        {% if show_avatars != 'no' and dj.avatar %}
+          {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
+          <img class="image-dither" src="{{ av }}" style="width:74px;height:74px;object-fit:cover;flex-shrink:0;border:1px solid #000;padding:2px" />
+        {% endif %}
+        <div style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+          <div style="background:#000;padding:1px 7px;align-self:flex-start">
+            <span class="label label--small" style="color:#fff;letter-spacing:2px">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+          </div>
+          <span style="font-size:19px;font-weight:bold;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15">{{ on_air.name }}</span>
+          {% if dj.name %}<span style="font-size:12px;letter-spacing:1px">WITH {{ dj.name | upcase }}</span>{% endif %}
+          {% if on_air.topic %}
+            <span style="font-size:12px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ on_air.topic }}</span>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div style="min-height:0;display:flex;flex-direction:column;gap:3px">
+        <div style="background:#000;padding:1px 7px;align-self:flex-start">
+          <span class="label label--small" style="color:#fff;letter-spacing:2px">UNSCHEDULED</span>
+        </div>
+        <span style="font-size:14px">Rotation is running unattended.</span>
+      </div>
+    {% endif %}
+
+    {% if up_next %}
+      <div style="margin-top:auto;border-top:2px solid #000;padding-top:3px;display:flex;gap:7px;align-items:baseline;flex-shrink:0">
+        <span class="label label--small" style="letter-spacing:2px;flex-shrink:0;border:1px solid #000;padding:0 5px">NEXT &middot; {{ next_start_f }}</span>
+        <span style="font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ up_next.name }}</span>
+        {% if ndj.name %}<span style="font-size:11px;flex-shrink:0">with {{ ndj.name }}</span>{% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
