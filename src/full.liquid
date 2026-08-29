@@ -30,6 +30,13 @@
 {% assign grid       = IDX_0.schedule | default: schedule %}
 {% assign np         = IDX_1 %}
 
+{%- comment -%} an unreachable station returns no shows and no grid; that is
+     a different thing from an hour with nothing booked {%- endcomment -%}
+{% assign n_shows = shows_l.size | default: 0 %}
+{% assign n_days  = grid.size | default: 0 %}
+{% assign data_ok = false %}
+{% if n_shows > 0 and n_days > 0 %}{% assign data_ok = true %}{% endif %}
+
 {% assign host = station_url | strip | remove: "https://" | remove: "http://" | split: "/" | first %}
 {% assign base = "https://" | append: host | append: "/api" %}
 
@@ -104,11 +111,6 @@
 {% capture cur_end_f %}{% assign x = ce | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if ce >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
 {% capture next_start_f %}{% assign x = next_start | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if next_start >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
 
-<style>
-  /* No Framework utility exists for filters; defined once as a class so no
-     element carries an inline style attribute. */
-  .sw-contrast { filter: grayscale(1) contrast(1.75) brightness(1.04); }
-</style>
 {% if title_bar == 'yes' %}
   <div class="title_bar">
     <span class="title">{{ st_name }}</span>
@@ -119,7 +121,7 @@
   <div class="flex flex--row flex--left flex--top gap--none w--full h--full">
 
     {%- comment -%} ═══ LEFT COLUMN ═══ {%- endcomment -%}
-    <div class="flex flex--col flex--left flex--top gap--small w--[54cqw] portrait:w--full pr--2 portrait:pr--0">
+    <div class="flex flex--col flex--left flex--top gap--small w--[54cqw] shrink-0 portrait:w--full pr--2 portrait:pr--0">
 
       <div class="flex flex--col flex--left flex--top gap--none w--full">
         <div class="flex flex--row flex--center-x w--full">
@@ -133,7 +135,12 @@
       </div>
 
       {% assign on_air = shows_l | find_by: 'id', current_id %}
-      {% if on_air %}
+      {% if data_ok == false %}
+        <div class="grow w--full flex flex--col flex--center gap--small">
+          <span class="label label--small label--filled">STATION UNREACHABLE</span>
+          <span class="description text--center">No schedule came back from {{ host }}. Check the station is online and reachable from the public internet.</span>
+        </div>
+      {% elsif on_air %}
         {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
         <div class="flex flex--row flex--left flex--center-y gap--small w--full">
           {% if av_on and dj.avatar %}
@@ -177,7 +184,7 @@
     </div>
 
     {%- comment -%} ═══ RIGHT COLUMN — border--v-black paints its left edge ═══ {%- endcomment -%}
-    <div class="flex flex--col flex--left flex--top gap--none grow h--full pl--2 portrait:pl--0 border--v-black">
+    <div class="flex flex--col flex--left flex--top gap--none grow w--[46cqw] portrait:w--full h--full pl--2 portrait:pl--0 border--v-black">
       <span class="label label--small">PROGRAMMING GUIDE</span>
       <div class="w--full border--h-black"></div>
 

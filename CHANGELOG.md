@@ -47,6 +47,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   dithered pattern that renders as light dots. All rules now use
   `border--h-black` / `border--v-black`, the only unconditionally solid ones.
 
+- **`src/shared.liquid`.** Shared markup is injected ahead of every view, so
+  the one CSS rule the Framework has no utility for (a `filter`, used by the
+  High contrast artwork option) is defined once there instead of in a `<style>`
+  block per view.
+- **An explicit "station unreachable" state.** Previously an offline station
+  rendered as "Unscheduled", which reads as *nothing is booked right now* rather
+  than *the plugin cannot see your station*. Now distinguished by checking that
+  shows and the grid both came back.
+- Both full-layout columns carry explicit widths, so a container-query base and
+  `grow` cannot disagree about the split.
+
 ### Removed
 
 - **The now-playing track line.** TRMNL's fastest refresh is 15 minutes, so a
@@ -91,6 +102,17 @@ SUB/WAVE operator can install.
   panel.
 - Templates read form fields from `trmnl.plugin_settings.custom_fields_values`
   with a bare-name fallback, so they work whichever way TRMNL supplies them.
+
+- **`src/shared.liquid`.** Shared markup is injected ahead of every view, so
+  the one CSS rule the Framework has no utility for (a `filter`, used by the
+  High contrast artwork option) is defined once there instead of in a `<style>`
+  block per view.
+- **An explicit "station unreachable" state.** Previously an offline station
+  rendered as "Unscheduled", which reads as *nothing is booked right now* rather
+  than *the plugin cannot see your station*. Now distinguished by checking that
+  shows and the grid both came back.
+- Both full-layout columns carry explicit widths, so a container-query base and
+  `grow` cannot disagree about the split.
 
 ### Removed
 

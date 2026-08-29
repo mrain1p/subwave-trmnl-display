@@ -1,0 +1,11 @@
+{%- comment -%}
+  Shared markup is injected ahead of every view, so this class is defined once
+  for all four layouts rather than inline in each.
+
+  The Framework has no filter utility, and `filter` is the only way to lift a
+  dark portrait's contrast before the platform dithers it. Defining it here
+  keeps every view free of inline style attributes and of its own <style> block.
+{%- endcomment -%}
+<style>
+  .sw-contrast { filter: grayscale(1) contrast(1.75) brightness(1.04); }
+</style>

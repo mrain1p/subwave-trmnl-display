@@ -67,7 +67,7 @@ custom_fields:
 - keyname: show_avatars
   field_type: select
   name: DJ Artwork
-  description: How persona avatars are treated. Dark or low-contrast art dithers into noise on a 1-bit panel &mdash; <strong>High contrast</strong> pushes the background to solid black first, <strong>Outlined</strong> adds a hairline edge so the portrait separates from the page.
+  description: How persona avatars are treated. <a href="https://github.com/mrain1p/subwave-trmnl-display#dj-artwork">See what each option looks like</a>. Dark or low-contrast art dithers into noise on a 1-bit panel &mdash; <strong>High contrast</strong> pushes the background to solid black first, <strong>Outlined</strong> adds a hairline edge so the portrait separates from the page.
   options:
   - Dithered: 'yes'
   - High contrast: contrast
