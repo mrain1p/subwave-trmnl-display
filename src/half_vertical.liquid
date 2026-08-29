@@ -6,7 +6,6 @@
 {% assign tz_offset    = cf.tz_offset    | default: tz_offset %}
 {% assign show_avatars = cf.show_avatars | default: show_avatars | default: 'yes' %}
 {% assign guide_rows   = cf.guide_rows   | default: guide_rows %}
-{% assign title_bar    = cf.title_bar    | default: title_bar | default: 'no' %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
 {%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
@@ -18,11 +17,12 @@
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
 {% assign av_on = true %}
-{% assign av_extra = '' %}
+{% assign av_cls = 'image--cover image-dither' %}
+{% assign av_style = '' %}
 {% case show_avatars %}
   {% when 'no' %}{% assign av_on = false %}
-  {% when 'outline' %}{% assign av_extra = 'image-stroke image-stroke--black image-stroke--small' %}
-  {% when 'contrast' %}{% assign av_extra = 'sw-contrast' %}
+  {% when 'outline' %}{% assign av_cls = 'image--cover image-dither image-stroke image-stroke--black image-stroke--small' %}
+  {% when 'contrast' %}{% assign av_style = 'filter:grayscale(1) contrast(1.75) brightness(1.04)' %}
 {% endcase %}
 
 {% assign shows_l    = IDX_0.shows    | default: shows %}
@@ -108,23 +108,12 @@
 {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
 {% assign vmax = 6 %}
 
-<style>
-  /* No Framework utility exists for filters; defined once as a class so no
-     element carries an inline style attribute. */
-  .sw-contrast { filter: grayscale(1) contrast(1.75) brightness(1.04); }
-</style>
-{% if title_bar == 'yes' %}
-  <div class="title_bar">
-    <span class="title">{{ st_name }}</span>
-    <span class="instance">{{ trmnl.plugin_settings.instance_name }}</span>
-  </div>
-{% endif %}
 <div class="layout">
   <div class="flex flex--col h--full gap--xsmall">
 
     <div class="flex flex--col">
       <div class="flex flex--center-x">
-        <span class="title title--small lg:title" data-clamp="1">{{ st_name | upcase }}</span>
+        <span class="title title--small" data-clamp="1">{{ st_name | upcase }}</span>
       </div>
       <div class="divider"></div>
       <div class="flex flex--center-x py--0.5">
@@ -137,15 +126,15 @@
       <div class="flex flex--col flex--center-x gap--xsmall">
         {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="image image-dither image--cover {{ av_extra }} w--[96px] h--[96px] portrait:w--[72px] portrait:h--[72px]" src="{{ av }}" />
+          <img class="{{ av_cls }} w--[96px] h--[96px]" src="{{ av }}"{% if av_style != '' %} style="{{ av_style }}"{% endif %} />
         {% endif %}
-        <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+        <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
         <span class="title title--small text--center" data-clamp="2">{{ on_air.name }}</span>
         {% if dj.name %}<span class="label label--small">WITH {{ dj.name | upcase }}</span>{% endif %}
       </div>
     {% else %}
       <div class="flex flex--col flex--center-x gap--xsmall">
-        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
+        <span class="label label--small label--filled">UNSCHEDULED</span>
       </div>
     {% endif %}
 
@@ -185,7 +174,7 @@
               {% assign gs = shows_l | find_by: 'id', id_h %}
               {% if gs %}
                 {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                <div class="flex flex--row gap--small shrink-0">
+                <div class="flex flex--row gap--small">
                   <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                   <div class="flex flex--col">
                     <span class="title title--small" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>

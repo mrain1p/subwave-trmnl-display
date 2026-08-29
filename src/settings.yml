@@ -35,7 +35,7 @@ custom_fields:
   field_type: url
   name: Station URL
   description: The public address of your SUB/WAVE station &mdash; the same origin your web player uses. Must be reachable from the public internet (a LAN address will not work, since TRMNL fetches the data from its own servers).
-  help_text: Origin only. Do not add a trailing slash, and do not include a path &mdash; just the host your web player points at.
+  help_text: Origin only, with <strong>no trailing slash</strong> &mdash; e.g. <code>https://radio.yourstation.com</code>, not <code>.../</code>.
   placeholder: https://radio.yourstation.com
 - keyname: station_name
   field_type: string
@@ -85,16 +85,6 @@ custom_fields:
   - Small: sm
   default: md
   group: Display Options
-- keyname: title_bar
-  field_type: select
-  name: TRMNL Title Bar
-  description: Adds the standard TRMNL bar naming the plugin and this instance. The full-screen layout already carries your station wordmark, so this mostly earns its place in mashups, where it tells plugins apart.
-  options:
-  - Hidden: 'no'
-  - Shown: 'yes'
-  default: 'no'
-  group: Display Options
-
 - keyname: guide_rows
   field_type: number
   name: Programming Guide Length
@@ -107,7 +97,7 @@ custom_fields:
 - keyname: about
   field_type: author_bio
   name: About This Plugin
-  description: Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Questions and bug reports: <a href="https://github.com/mrain1p/subwave-trmnl-display/issues">GitHub Issues</a> (fastest route). Source and releases in the same repo.
+  description: Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Source, issues and releases on <a href="https://github.com/mrain1p/subwave-trmnl-display">GitHub</a>.
   category: entertainment,art
   learn_more_url: https://www.getsubwave.com/
   github_url: https://github.com/mrain1p/subwave-trmnl-display
