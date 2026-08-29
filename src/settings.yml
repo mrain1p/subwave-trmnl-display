@@ -94,7 +94,6 @@ custom_fields:
   - Shown: 'yes'
   default: 'no'
   group: Display Options
-
 - keyname: guide_rows
   field_type: number
   name: Programming Guide Length
@@ -107,8 +106,7 @@ custom_fields:
 - keyname: about
   field_type: author_bio
   name: About This Plugin
-  description: >-
-    <strong>Community plugin.</strong> Built and maintained independently by a SUB/WAVE operator; not affiliated with, endorsed by, or supported by SUB/WAVE or TRMNL.<br/>Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Questions and bug reports: <a href="https://github.com/mrain1p/subwave-trmnl-display/issues">GitHub Issues</a> (fastest route). Source and releases in the same repo.
+  description: '<strong>Community plugin.</strong> Built and maintained independently by a SUB/WAVE operator; not affiliated with, endorsed by, or supported by SUB/WAVE or TRMNL.<br/>Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Questions and bug reports: <a href="https://github.com/mrain1p/subwave-trmnl-display/issues">GitHub Issues</a> (fastest route). Source and releases in the same repo.'
   category: entertainment,art
   learn_more_url: https://www.getsubwave.com/
   github_url: https://github.com/mrain1p/subwave-trmnl-display
