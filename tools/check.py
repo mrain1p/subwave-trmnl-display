@@ -49,6 +49,14 @@ for f in sorted(glob.glob(str(root / "*.liquid"))):
     used     = set(re.findall(r"\{\{\s*([a-z_][a-z0-9_]*)[\s.|}]", src))
     assigned = set(re.findall(r"\{%\s*(?:assign|capture)\s+([a-z_][a-z0-9_]*)", src))
     undef    = sorted(used - assigned - KNOWN)
+    # w--N / h--N must land on the 4px scale; anything else silently does nothing
+    SCALE = {"0","0.5","1","1.5","2","2.5","3","3.5","4","5","6","7","8","9","10",
+             "11","12","14","16","20","24","28","32","36","40","44","48","52","56",
+             "60","64","72","80","96","full","auto"}
+    offscale = sorted({t for t in re.findall(r"[wh]--([0-9.]+|full|auto)\b", src)
+                       if t not in SCALE})
+    if offscale:
+        fail.append("%s uses off-scale size tokens %s (use w--[Npx] instead)" % (name, offscale))
     imgs     = re.findall(r"<img[^>]*>", src)
     nodither = [i for i in imgs if "image-dither" not in i]
     inline   = [t for t in re.findall(r"<[^>]*>", src) if 'style="' in t]
