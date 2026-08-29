@@ -182,6 +182,20 @@ Atkinson propagates only 6/8 of the error and discards the rest, so it clips
 toward pure black and white instead of spreading grey. That is what keeps a
 small face readable.
 
+## Checks before pushing
+
+```sh
+python tools/check.py
+```
+
+Verifies `settings.yml` parses, and that no template carries an undefined Liquid
+variable, an inline `style` attribute, an `<img>` missing `image-dither`, or a
+leftover merge marker.
+
+The YAML check is the one that matters: TRMNL silently ignores a `settings.yml`
+it cannot parse rather than reporting an error, so a stray `: ` inside an
+unquoted description can drop every form field without any visible failure.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md). Current release: **1.1.0**.
