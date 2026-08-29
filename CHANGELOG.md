@@ -6,6 +6,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.1.0] — 2026-08-29
 
+### Note
+
+- Identified as a **community plugin** in the README, the plugin description and
+  the author bio &mdash; independent of SUB/WAVE and TRMNL.
+
 ### Added
 
 - **Masthead Subtitle field.** Free text for the line under the wordmark &mdash;

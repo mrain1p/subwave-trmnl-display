@@ -1,5 +1,10 @@
 # SUB/WAVE Radio for TRMNL
 
+> **A community plugin.** Built and maintained independently by a SUB/WAVE
+> operator. Not affiliated with, endorsed by, or supported by
+> [SUB/WAVE](https://www.getsubwave.com/) or [TRMNL](https://trmnl.com) — please
+> raise issues here rather than with either of them.
+
 A TRMNL plugin that shows what's on air, who's hosting, and the rest of the day's
 programming for any self-hosted [SUB/WAVE](https://www.getsubwave.com/) internet
 radio station.
@@ -210,6 +215,7 @@ See [CHANGELOG.md](CHANGELOG.md). Current release: **1.1.0**.
 
 [MIT](LICENSE).
 
-SUB/WAVE is a project of [getsubwave.com](https://www.getsubwave.com/); this
-plugin is an independent community contribution and is not affiliated with or
-endorsed by it, or by TRMNL.
+SUB/WAVE is a project of [getsubwave.com](https://www.getsubwave.com/) and TRMNL
+is a product of [trmnl.com](https://trmnl.com). This plugin is an independent
+community contribution to both, and neither project is responsible for it.
+"SUB/WAVE" and "TRMNL" are used here only to say what the plugin works with.
