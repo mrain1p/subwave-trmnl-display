@@ -96,10 +96,11 @@ custom_fields:
 - keyname: about
   field_type: author_bio
   name: About This Plugin
-  description: Built for <a href="https://www.getsubwave.com/">SUB/WAVE</a>, the self-hosted internet radio stack with AI DJs.<br/>Works with any SUB/WAVE deployment &mdash; no account or API key required.
+  description: Schedule, on-air show and DJ for any self-hosted <a href="https://www.getsubwave.com/">SUB/WAVE</a> station. No account or API key needed &mdash; paste your station URL and it reads the rest from your own API.<br/>Source, issues and releases on <a href="https://github.com/mrain1p/subwave-trmnl-display">GitHub</a>.
   category: entertainment,art
   learn_more_url: https://www.getsubwave.com/
-  github_url: https://github.com/getsubwave
+  github_url: https://github.com/mrain1p/subwave-trmnl-display
+  email_address: 220342547+mrain1p@users.noreply.github.com
 name: SUB/WAVE Radio
 description: SUB/WAVE schedule + now playing
 refresh_interval: 15
