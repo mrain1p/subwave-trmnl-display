@@ -102,7 +102,8 @@ the `inverse` subtree in `full.liquid` back to `bg--black` + `text--white`, and
 `w--[76px]` back to the off-scale `w--19`. Nothing was wrong with the work — the
 bot simply pushed TRMNL's stale copy back down, because the broken `push` job
 meant the repo had never sent anything up. `check.py` caught it only because of
-the `w--19` token; the framework downgrade was silent. **After any bot commit,
+the `w--19` token; the framework downgrade was silent. (The push job works as of
+2026-09-01 — see open item 2 — so this particular door is now shut.) **After any bot commit,
 run `python tools/check.py` and diff `src/` against your last commit.**
 
 ## Before pushing
@@ -242,16 +243,32 @@ Don't "fix" these without reading why:
    See the linter section above for why the Ruby floor is invisible in the
    gemspec. There was never a `workflow-trmnl.yml` — it was pasted into chat,
    not the repo; the workflow is committed directly now.
-2. **`TRMNL_API_KEY` is not set, and it blocks everything downstream.** Not
-   "confirm it" — confirmed absent: the `push` job logs `TRMNL_API_KEY:` with
-   no value and dies on ``please run `trmnlp login` ``, and `gh secret list`
-   returns nothing at all for the repo. Set it with `gh secret set
-   TRMNL_API_KEY` (it prompts, so the key stays out of shell history) or via
-   Settings → Secrets and variables → Actions, then rerun the failed job.
+2. **`TRMNL_API_KEY` — done, and the first push has landed.** On 2026-09-01
+   the `push` job reported `Uploaded plugin (13020 bytes)` against plugin
+   `460475`. Both directions work now. Before that the repo had *never* sent
+   anything to TRMNL — exactly the condition that let the bot revert `774d217`.
 
-   **Until that push succeeds, the repo has still never sent anything to
-   TRMNL** — which is exactly the condition that let the bot revert `774d217`.
-   The 3.3.0 restore is safe in git, but it is not safe from the next sync.
+   The route there is worth recording, because the two failures look unrelated
+   and only one of them names its cause:
+
+   | `TRMNL_API_KEY` in the job log | Error |
+   | ------------------------------ | ----- |
+   | blank | ``please run `trmnlp login` `` |
+   | `***` | `401 {"error":"Invalid API key"}` |
+
+   Blank means no secret. `***` **plus** a 401 means a secret exists and its
+   value is wrong. trmnl.com issues only `user_`-prefixed keys, and `trmnlp
+   login` refuses anything else with "did you copy it from the right place?"
+   — but `Config::App#api_key` reads `ENV['TRMNL_API_KEY']` *before* that
+   check, so in CI a wrong key skips validation entirely and surfaces only as
+   an opaque 401 from the server. Usual causes: a device API key instead of
+   the account key from <https://trmnl.com/account>, or a trailing newline
+   picked up while copying.
+
+   Set it with `gh secret set TRMNL_API_KEY` (it prompts, so the key stays out
+   of shell history). The prompt masks input, and **the asterisk count equals
+   the key length** — the quickest way to catch a stray newline before
+   burning a CI run on it.
 3. **Shared tab — answered, no action.** `src/shared.liquid` *does* reach
    TRMNL: the AI Chef quoted the `<style>` block and named the field
    `markup_shared`, which it could only do by reading it there. So
