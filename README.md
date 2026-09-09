@@ -24,20 +24,27 @@ key, no third-party service in the middle.
 
 ## Install
 
-**From the TRMNL recipe list** — search Recipes for "SUB/WAVE Radio" and click
-Install. Then set your Station URL (below).
-
 **From source** — clone this repo and push it to your own private plugin:
 
 ```sh
 git clone https://github.com/mrain1p/subwave-trmnl-display.git
 cd subwave-trmnl-display
-gem install trmnl_preview
-trmnlp login          # or export TRMNL_API_KEY=...
+bundle install                    # needs Ruby >= 4.0
+bundle exec trmnlp login          # or export TRMNL_API_KEY=...
 ```
 
+Install through Bundler rather than `gem install trmnl_preview`. The gem declares
+`ruby >= 3.4` but depends on `trmnl-liquid`, which needs **4.0**, so a plain
+`gem install` quietly falls back to 0.3.2 — a version with no `push` command at
+all. Bundler reports the real conflict instead of hiding it.
+
 Change `id:` at the top of `src/settings.yml` to your own plugin's id — or delete
-the line to create a new one — then `trmnlp push`.
+the line to create a new one — then `bundle exec trmnlp push`. Then set your
+Station URL (below).
+
+**From the TRMNL recipe list** — not yet. This is not currently published as a
+public TRMNL recipe, so searching Recipes for "SUB/WAVE Radio" will not find it.
+Install from source above.
 
 ## Configuration
 
