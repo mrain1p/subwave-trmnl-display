@@ -1,4 +1,6 @@
-<img src="icon.png" alt="" width="88">
+<p align="center">
+  <img src="icon.png" alt="" width="160">
+</p>
 
 # SUB/WAVE Radio for TRMNL
 
