@@ -1,3 +1,5 @@
+<img src="icon.png" alt="" width="88">
+
 # SUB/WAVE Radio for TRMNL
 
 > **A community plugin.** Built and maintained independently by a SUB/WAVE
