@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <rect x="0" y="0" width="512" height="512" rx="112" fill="#141210"/>
-  <!-- the panel -->
-  <rect x="80" y="150" width="352" height="212" rx="28" fill="none" stroke="#342E28" stroke-width="9"/>
-  <!-- programming guide rows; the rust row is the show on air -->
-  <rect x="116" y="173" width="190" height="26" rx="13" fill="#EDE7DB"/>
-  <rect x="116" y="219" width="280" height="26" rx="13" fill="#D24A28"/>
-  <rect x="116" y="265" width="235" height="26" rx="13" fill="#EDE7DB"/>
-  <rect x="116" y="311" width="160" height="26" rx="13" fill="#EDE7DB"/>
-  <circle cx="142" cy="232" r="9" fill="#EDE7DB"/>
+  <!-- waveform: cream peak on air, rust falling away either side -->
+  <rect x="62" y="198.2" width="40" height="115.6" rx="20" fill="#96341E"/>
+  <rect x="120" y="157.4" width="40" height="197.2" rx="20" fill="#D24A28"/>
+  <rect x="178" y="116.6" width="40" height="278.8" rx="20" fill="#E6966E"/>
+  <rect x="236" y="86.0" width="40" height="340.0" rx="20" fill="#EDE7DB"/>
+  <rect x="294" y="109.8" width="40" height="292.4" rx="20" fill="#E6966E"/>
+  <rect x="352" y="150.6" width="40" height="210.8" rx="20" fill="#D24A28"/>
+  <rect x="410" y="191.4" width="40" height="129.2" rx="20" fill="#96341E"/>
 </svg>
