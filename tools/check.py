@@ -70,6 +70,23 @@ for f in sorted(glob.glob(str(root / "*.liquid"))):
     if styleblk: fail.append("%s has a <style> block (belongs in shared.liquid)" % name)
     print("  %-24s %d img  %d undefined  %d inline-style" % (name, len(imgs), len(undef), len(inline)))
 
+# the shipped plugin export must match src/, or importers get stale markup
+ZIP = pathlib.Path("dist/subwave-radio-trmnl.zip")
+if ZIP.exists():
+    import zipfile
+    with zipfile.ZipFile(ZIP) as z:
+        names = set(z.namelist())
+        drift, missing = [], []
+        for f in sorted(glob.glob("src/*")):
+            n = pathlib.Path(f).name
+            if n not in names:
+                missing.append(n)
+            elif z.read(n) != pathlib.Path(f).read_bytes():
+                drift.append(n)
+    if missing: fail.append("%s is missing %s (re-export from TRMNL)" % (ZIP.name, missing))
+    if drift:   fail.append("%s is stale: %s differ from src/ (re-export from TRMNL)" % (ZIP.name, drift))
+    print("  %-24s %d files  %d stale  %d missing" % (ZIP.name, len(names), len(drift), len(missing)))
+
 if fail:
     print("\nFAIL")
     for m in fail: print("  x", m)

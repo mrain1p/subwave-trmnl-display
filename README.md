@@ -24,7 +24,25 @@ key, no third-party service in the middle.
 
 ## Install
 
-**From source** — clone this repo and push it to your own private plugin:
+> **Pending approval in the TRMNL recipe store.** Once it is listed you will be
+> able to install it in one click from Recipes. Until then, import the plugin
+> export below — it takes about a minute and needs no tooling.
+
+### Import the plugin export
+
+1. Download **[`dist/subwave-radio-trmnl.zip`](dist/subwave-radio-trmnl.zip)**
+   (use GitHub's download button, not "view raw").
+2. In TRMNL, open **Plugins → Private Plugin → Import new** and choose the zip.
+   The plugin is created and added to your playlist automatically.
+3. Open its settings and set **Station URL** to your station's public origin,
+   for example `https://radio.yourstation.com`. **No trailing slash.**
+
+That is the whole setup. Station name, tagline, DJs, artwork and the full 7×24
+schedule all come from your own API.
+
+### From source
+
+Only needed if you want to change the templates or contribute back.
 
 ```sh
 git clone https://github.com/mrain1p/subwave-trmnl-display.git
@@ -39,12 +57,7 @@ Install through Bundler rather than `gem install trmnl_preview`. The gem declare
 all. Bundler reports the real conflict instead of hiding it.
 
 Change `id:` at the top of `src/settings.yml` to your own plugin's id — or delete
-the line to create a new one — then `bundle exec trmnlp push`. Then set your
-Station URL (below).
-
-**From the TRMNL recipe list** — not yet. This is not currently published as a
-public TRMNL recipe, so searching Recipes for "SUB/WAVE Radio" will not find it.
-Install from source above.
+the line to create a new one — then `bundle exec trmnlp push`.
 
 ## Configuration
 

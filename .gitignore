@@ -2,6 +2,8 @@
 .trmnlp.local.yml
 tmp/
 *.zip
+# except the shipped plugin export, which is tracked
+!dist/*.zip
 
 # credentials — never commit your TRMNL API key
 .env
