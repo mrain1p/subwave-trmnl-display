@@ -11,9 +11,9 @@
 
 {%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 19 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 18 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -158,14 +158,14 @@
             <span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>
           </div>
         {% endif %}
-        {% if dj.tagline %}<span class="description hidden lg:visible text--center w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+        {% if dj.tagline %}<span class="description text--center w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
       </div>
-      {%- comment -%} TRMNL X has the height for the show description as well. Its own data-overflow
-           wrapper makes the runtime clamp it before it budgets the guide below (the overflow
-           engine runs before the clamp engine, in DOM order) {%- endcomment -%}
+      {%- comment -%} the show description: three lines on OG, eight on TRMNL X. Its own
+           data-overflow wrapper makes the runtime clamp it before it budgets the guide below
+           (the overflow engine runs before the clamp engine, in DOM order) {%- endcomment -%}
       {% if on_air.topic %}
-        <div class="flex hidden lg:flex flex--col flex--left flex--top gap--none w--full shrink-0" data-overflow="true">
-          <span class="description w--full" data-clamp="8" data-clamp-lg-portrait="10">{{ on_air.topic }}</span>
+        <div class="flex flex--col flex--left flex--top gap--none w--full shrink-0" data-overflow="true">
+          <span class="description w--full" data-clamp="3" data-clamp-portrait="4" data-clamp-lg="8" data-clamp-lg-portrait="10">{{ on_air.topic }}</span>
         </div>
       {% endif %}
     {% else %}

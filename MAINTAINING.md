@@ -265,6 +265,12 @@ the shipped 3.3.0 CSS and JS with `tools/preview.py`, not read from the docs.
   moved inside the left column so the two-column row is the `h--full` one; a
   `grow` row below a header is not definite, and `h--full` children of it just
   take their content height.
+- **OG line pitch is 12px in 3.3.0** (`description` and `text--small` are
+  12px/12px, `title--small` 16px/16px, `description--large` 16px/20px). The
+  1.1.0 clamps were sized for the ~17px pitch of 3.1.x, which is why OG panels
+  went half empty after the framework bump. Budgets per view are in the
+  templates' `data-clamp` attributes; the full layout's live in the
+  `topic_size` block at the top of every view.
 - **Ordering that matters:** the runtime hooks `DOMContentLoaded`, which fires
   before web fonts load. `tools/preview.py` injects it after
   `document.fonts.ready`; without that the clamp engine measures with a fallback

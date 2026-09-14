@@ -11,9 +11,9 @@
 
 {%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 19 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 18 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -157,8 +157,7 @@
             <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
             <span class="title title--small lg:title--base w--full" data-clamp="2">{{ on_air.name }}</span>
             {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
-            {%- comment -%} the persona tagline fits beside the larger TRMNL X avatar {%- endcomment -%}
-            {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+            {% if dj.tagline %}<span class="description w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
             {% if on_air.moods and on_air.moods.size > 0 %}
               <div class="flex hidden lg:flex flex--row flex--left flex--center-y gap--xsmall w--full">
                 {% for mood in on_air.moods limit: 4 %}<span class="label label--small label--outline">{{ mood | upcase }}</span>{% endfor %}

@@ -11,9 +11,9 @@
 
 {%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 19 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 18 %}{% assign t_clamp_p = 8 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -125,7 +125,7 @@
 <div class="layout layout--col layout--start">
   <div class="flex flex--col flex--left flex--top gap--xsmall w--full h--full">
 
-    <div class="w--full border--h-black">
+    <div class="w--full border--h-black shrink-0">
       <span class="label label--small" data-clamp="1">{{ st_name | upcase }}</span>
     </div>
 
@@ -135,7 +135,7 @@
         <span class="description w--full" data-clamp="2">No schedule came back from {{ host }}.</span>
       </div>
     {% elsif on_air %}
-      <div class="flex flex--row flex--left flex--center-y gap--small w--full">
+      <div class="flex flex--row flex--left flex--center-y gap--small w--full shrink-0">
         {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
           <img class="image image-dither image--cover {{ av_extra }} w--[56px] h--[56px] portrait:w--[44px] portrait:h--[44px] lg:w--[80px] lg:h--[80px] lg:portrait:w--[64px] lg:portrait:h--[64px] shrink-0" src="{{ av }}" />
@@ -148,22 +148,20 @@
           <span class="title title--small w--full lg:hidden" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
           <span class="title title--small lg:title--base w--full hidden lg:visible" data-clamp="1">{{ on_air.name }}</span>
           {% if dj.name %}<span class="description w--full" data-clamp="1">with {{ dj.name }}</span>{% endif %}
-          {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+          {% if dj.tagline %}<span class="description w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
         </div>
       </div>
       {% if on_air.topic %}
-        <div class="w--full border--h-black"></div>
-        <span class="description w--full" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="13" data-clamp-lg-portrait="20">{{ on_air.topic }}</span>
+        <div class="w--full border--h-black shrink-0"></div>
+        <span class="description w--full shrink-0" data-clamp="7" data-clamp-portrait="18" data-clamp-lg="13" data-clamp-lg-portrait="20">{{ on_air.topic }}</span>
       {% endif %}
-      {%- comment -%} TRMNL X has the height for the next show as well. `hidden lg:flex`: .hidden
-           outranks .flex by stylesheet order and the lg: variant outranks both {%- endcomment -%}
       {% if up_next %}
-        <div class="flex hidden lg:flex flex--col flex--left flex--top gap--xsmall w--full">
+        <div class="flex flex--col flex--left flex--top gap--xsmall w--full shrink-0">
           <div class="w--full border--h-black"></div>
           <div class="flex flex--row flex--left flex--center-y gap--small w--full">
             <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
             <span class="title title--small grow" data-clamp="1">{{ up_next.name }}</span>
-            {% if ndj.name %}<span class="description shrink-0">with {{ ndj.name }}</span>{% endif %}
+            {% if ndj.name %}<span class="description shrink-0 portrait:hidden">with {{ ndj.name }}</span>{% endif %}
           </div>
         </div>
       {% endif %}

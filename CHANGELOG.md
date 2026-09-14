@@ -19,7 +19,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   TRMNL OG only; TRMNL X always fills its taller guide column.
 - On TRMNL X the full layout also shows the current show's mood tags and the
   next show's description under Coming Up, which sits at the foot of the column;
-  the quadrant shows the full show name and the host's tagline.
+  the quadrant shows the full show name.
+- **TRMNL OG re-budgeted for Framework 3.3.0**, which draws descriptions at a
+  12px pitch: the full layout shows up to 18 lines (was 11), half horizontal 6
+  (was 2), the quadrant 7 (was 2), and half vertical gains a 3-line description.
+  The host's tagline and the quadrant's NEXT line now show on OG as well.
 - **`tools/preview.py`** renders every layout for TRMNL OG and TRMNL X, both
   orientations, with the real Framework CSS and runtime &mdash; no Ruby or
   Docker needed.
