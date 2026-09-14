@@ -11,9 +11,9 @@
 
 {%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 12 %}{% assign t_clamp_lgp = 8 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 16 %}{% assign t_clamp_lgp = 10 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -123,7 +123,7 @@
   <div class="flex flex--row flex--left flex--top portrait:flex--col gap--none w--full h--full">
 
     {%- comment -%} ═══ LEFT COLUMN ═══ {%- endcomment -%}
-    <div class="flex flex--col flex--left flex--top gap--small w--[54cqw] shrink-0 portrait:w--full pr--2 portrait:pr--0">
+    <div class="flex flex--col flex--left flex--top gap--small w--[54cqw] h--full portrait:h--auto shrink-0 portrait:w--full pr--2 portrait:pr--0">
 
       {%- comment -%} single-line clamps get the full width (w--full, or a block wrapper). The clamp
            engine measures a shrink-wrapped element against its own width and rounds the two
@@ -159,14 +159,22 @@
             {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
             {%- comment -%} the persona tagline fits beside the larger TRMNL X avatar {%- endcomment -%}
             {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+            {% if on_air.moods and on_air.moods.size > 0 %}
+              <div class="flex hidden lg:flex flex--row flex--left flex--center-y gap--xsmall w--full">
+                {% for mood in on_air.moods limit: 4 %}<span class="label label--small label--outline">{{ mood | upcase }}</span>{% endfor %}
+              </div>
+            {% endif %}
           </div>
         </div>
 
         <div class="w--full border--h-black"></div>
         {%- comment -%} the description stays a flex item: a bare span in a block wrapper is
              display:inline, its lines take the wrapper's line-height, and the clamp engine
-             (which measures a block) then under-clamps it by half on OG {%- endcomment -%}
-        <div class="flex flex--col flex--left flex--top gap--none grow w--full">
+             (which measures a block) then under-clamps it by half on OG. The block is its own
+             data-overflow container so the runtime clamps the text before it budgets the guide
+             (the overflow engine runs before the clamp engine, in DOM order), and it grows so
+             Coming Up sits at the foot of the column {%- endcomment -%}
+        <div class="flex flex--col flex--left flex--top gap--none grow w--full" data-overflow="true">
           <span class="{{ t_cls }} w--full" data-clamp="{{ t_clamp }}" data-clamp-portrait="{{ t_clamp_p }}" data-clamp-lg="{{ t_clamp_lg }}" data-clamp-lg-portrait="{{ t_clamp_lgp }}">{{ on_air.topic }}</span>
         </div>
       {% else %}
@@ -183,12 +191,17 @@
         <div class="flex flex--row flex--left flex--center-y gap--small w--full">
           {% if av_on and ndj.avatar %}
             {% if ndj.avatar contains '://' %}{% assign nav = ndj.avatar %}{% else %}{% assign nav = base | append: ndj.avatar %}{% endif %}
-            <img class="image image-dither image--cover {{ av_extra }} w--[52px] h--[52px] lg:w--[64px] lg:h--[64px] shrink-0" src="{{ nav }}" />
+            <img class="image image-dither image--cover {{ av_extra }} w--[52px] h--[52px] lg:w--[96px] lg:h--[96px] shrink-0" src="{{ nav }}" />
           {% endif %}
           <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
             <span class="label label--small label--outline self--start">COMING UP &middot; {{ next_start_f }}</span>
             <span class="title title--small w--full" data-clamp="1">{{ up_next.name }}</span>
             {% if ndj.name %}<span class="description w--full" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
+            {% if up_next.topic %}
+              <div class="flex hidden lg:flex flex--col flex--left flex--top gap--none w--full" data-overflow="true">
+                <span class="description w--full" data-clamp="5" data-clamp-lg-portrait="2">{{ up_next.topic }}</span>
+              </div>
+            {% endif %}
           </div>
         </div>
       {% endif %}
@@ -208,11 +221,14 @@
            so each row is an item with its rule riding on it {%- endcomment -%}
       <div class="grow w--full">
       <div class="flex flex--col flex--left flex--top gap--xsmall w--full" data-overflow="true">
+        {%- comment -%} Programming Guide Length caps TRMNL OG; rows past it are hidden lg:flex
+             so TRMNL X always fills its taller column (the engine drops what does not fit) {%- endcomment -%}
         {% assign rows = 0 %}
+        {% assign all_rows = 24 %}
         {% assign tm_from = tm_skip %}
 
         {% for h in (cur_start..23) %}
-          {% if rows < max_rows %}
+          {% if rows < all_rows %}
             {% assign id_h = today[h] %}
             {% if id_h %}
               {% assign is_start = false %}
@@ -268,7 +284,7 @@
                     </div>
                     </div>
                   {% else %}
-                    <div class="item shrink-0 border--h-black">
+                    <div class="item shrink-0 border--h-black{% if rows >= max_rows %} hidden lg:flex{% endif %}">
                     <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
@@ -285,9 +301,9 @@
           {% endif %}
         {% endfor %}
 
-        {% if rows < max_rows %}
+        {% if rows < all_rows %}
           {% for h in (tm_from..23) %}
-            {% if rows < max_rows %}
+            {% if rows < all_rows %}
               {% assign id_h = tomorrow[h] %}
               {% if id_h %}
                 {% assign is_start = false %}
@@ -314,7 +330,7 @@
                   {% if gs %}
                     {% assign short_name = gs.name | split: " ·" | first %}
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                    <div class="item shrink-0 border--h-black">
+                    <div class="item shrink-0 border--h-black{% if rows >= max_rows %} hidden lg:flex{% endif %}">
                     <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">

@@ -48,6 +48,7 @@ for f in sorted(glob.glob(str(root / "*.liquid"))):
     name = pathlib.Path(f).name
     used     = set(re.findall(r"\{\{\s*([a-z_][a-z0-9_]*)[\s.|}]", src))
     assigned = set(re.findall(r"\{%\s*(?:assign|capture)\s+([a-z_][a-z0-9_]*)", src))
+    assigned |= set(re.findall(r"\{%\s*for\s+([a-z_][a-z0-9_]*)\s+in\b", src))
     undef    = sorted(used - assigned - KNOWN)
     # w--N / h--N must land on the 4px scale; anything else silently does nothing
     SCALE = {"0","0.5","1","1.5","2","2.5","3","3.5","4","5","6","7","8","9","10",

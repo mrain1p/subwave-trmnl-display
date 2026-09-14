@@ -15,8 +15,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   only, a **Coming Up** column on the half-horizontal layout listing the rest of
   the day, the show description on the half-vertical layout, the next show on
   the quadrant, and the host's tagline on the full and half-horizontal layouts.
-- **Programming Guide Length** now defaults to 16 with a ceiling of 24. TRMNL OG
-  drops the rows that do not fit; TRMNL X has room for them.
+- **Programming Guide Length** now defaults to 16 with a ceiling of 24 and caps
+  TRMNL OG only; TRMNL X always fills its taller guide column.
+- On TRMNL X the full layout also shows the current show's mood tags and the
+  next show's description under Coming Up, which sits at the foot of the column;
+  the quadrant shows the full show name and the host's tagline.
 - **`tools/preview.py`** renders every layout for TRMNL OG and TRMNL X, both
   orientations, with the real Framework CSS and runtime &mdash; no Ruby or
   Docker needed.
@@ -33,6 +36,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   overflow engine only hides `.item` children and budgets against its parent's
   height, so each row is now an `.item` carrying its own rule, inside a wrapper
   that is exactly the remaining space.
+- **The NEXT line's host name was clamped a character short** (`with Da...`);
+  it is no longer clamped.
 - **The full layout's description was under-clamped on TRMNL OG**, pushing the
   Coming Up block off the panel for long write-ups. A bare span in a block
   wrapper takes the wrapper's line height while the clamp engine measures a

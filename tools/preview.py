@@ -6,8 +6,9 @@
     python tools/preview.py --serve
 
 Pages load the real Framework 3.3.0 CSS and runtime from trmnl.com, so clamps and
-overflow behave as they do on the device. The runtime is injected only after the
-fonts have loaded: run earlier, the clamp engine measures with a fallback font.
+overflow behave as they do on the device. The runtime is injected once the fonts
+have loaded (run earlier, the clamp engine measures with a fallback font) without
+waiting for the station's avatar images.
 
 The station's JSON is fetched once into the output folder (`--data` to reuse a
 folder, `--refresh` to fetch again). Output goes to a temp folder by default.
@@ -26,8 +27,8 @@ JS = "https://trmnl.com/js/3.3.0/plugins.js"
 
 # device class -> screen classes trmnlp would emit (see the Devices page of the Framework docs)
 DEVICES = {
-    "og": "screen screen--og screen--md screen--1bit",
-    "x": "screen screen--v2 screen--lg screen--4bit",
+    "og": "screen screen--og screen--md screen--1bit screen--1x",
+    "x": "screen screen--v2 screen--lg screen--4bit screen--1x",
 }
 MASHUP = {
     "full": None,
@@ -86,9 +87,9 @@ def wrap(view, device, portrait, inner):
         f'<body class="environment trmnl"><div class="{classes}">{open_m}<div class="view view--{view}">'
         f"{inner}"
         f"</div>{close_m}</div>"
-        '<script>window.addEventListener("load",function(){document.fonts.ready.then(function(){'
+        '<script>document.body.offsetHeight;Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,3000)})]).then(function(){'
         f'var s=document.createElement("script");s.src="{JS}";document.head.appendChild(s);'
-        "});});</script></body></html>"
+        "});</script></body></html>"
     )
 
 

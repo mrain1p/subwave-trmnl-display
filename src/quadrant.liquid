@@ -11,9 +11,9 @@
 
 {%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 12 %}{% assign t_clamp_lgp = 8 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 16 %}{% assign t_clamp_lgp = 10 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 22 %}{% assign t_clamp_lgp = 15 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 25 %}{% assign t_clamp_lgp = 16 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -145,13 +145,15 @@
              the last character on roughly half of renders {%- endcomment -%}
         <div class="flex flex--col flex--left flex--top gap--none w--full">
           <span class="label label--small">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-          <span class="title title--small lg:title--base w--full" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
+          <span class="title title--small w--full lg:hidden" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
+          <span class="title title--small lg:title--base w--full hidden lg:visible" data-clamp="1">{{ on_air.name }}</span>
           {% if dj.name %}<span class="description w--full" data-clamp="1">with {{ dj.name }}</span>{% endif %}
+          {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
         </div>
       </div>
       {% if on_air.topic %}
         <div class="w--full border--h-black"></div>
-        <span class="description w--full" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="5" data-clamp-lg-portrait="9">{{ on_air.topic }}</span>
+        <span class="description w--full" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="13" data-clamp-lg-portrait="20">{{ on_air.topic }}</span>
       {% endif %}
       {%- comment -%} TRMNL X has the height for the next show as well. `hidden lg:flex`: .hidden
            outranks .flex by stylesheet order and the lg: variant outranks both {%- endcomment -%}
@@ -160,8 +162,8 @@
           <div class="w--full border--h-black"></div>
           <div class="flex flex--row flex--left flex--center-y gap--small w--full">
             <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
-            <span class="title title--small grow" data-clamp="1">{{ up_next.name | split: " ·" | first }}</span>
-            {% if ndj.name %}<span class="description shrink-0" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
+            <span class="title title--small grow" data-clamp="1">{{ up_next.name }}</span>
+            {% if ndj.name %}<span class="description shrink-0">with {{ ndj.name }}</span>{% endif %}
           </div>
         </div>
       {% endif %}

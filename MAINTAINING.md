@@ -226,12 +226,21 @@ the shipped 3.3.0 CSS and JS with `tools/preview.py`, not read from the docs.
   class as well — only children of `.flex` get `min-height: 0`
   (`:where(.flex:not([data-overflow=true])) > *`), and without it a `grow`
   wrapper cannot shrink below its content.
-- **`data-clamp` over-allocates on X by the pixel ratio.** The clamp engine
-  sizes its probe from `getBoundingClientRect()` (scaled px) but lays it out in
-  CSS px, so `data-clamp-lg="N"` yields up to ~1.8×N lines. The `-lg` values in
-  the views were chosen for the rendered result; if TRMNL fixes the engine the
-  layouts only get shorter, never clipped. Mario's own quadrant edit
-  (`data-clamp-lg="5"`) renders as nine lines.
+- **TRMNL's editor previews X at 1× (`screen--1x`, `--pixel-ratio: 1`) and
+  honours `data-clamp` exactly** — the `-lg` values in the views are the real
+  line counts wanted. Without `screen--1x` the screen carries
+  `transform: scale(1.8)` and the clamp engine over-allocates lines by that
+  factor (its probe is sized from scaled rects but laid out in CSS px); an early
+  version of `tools/preview.py` rendered that way and the clamps came out ~45%
+  short in the real preview.
+- **The overflow engine runs before the clamp engine.** A guide budget computed
+  while the description above it is still unclamped comes out short (rows
+  missing, whitespace below). Giving the description its own
+  `data-overflow="true"` wrapper makes the engine clamp it first, in DOM order,
+  so the guide's budget is exact.
+- **X-only guide rows.** Rows past Programming Guide Length carry
+  `hidden lg:flex`, so the setting caps OG only and X always fills. `.item`
+  precedes `.hidden` in the stylesheet, so `hidden` wins on OG.
 - **Single-line clamps drop their last character** on roughly half of renders
   when the element is shrink-wrapped: the engine rounds the element's width but
   ceils the probe's. Mario's screenshot showed `YOSEMITE ...` and

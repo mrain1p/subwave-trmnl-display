@@ -79,7 +79,7 @@ Only the first field is required.
 | **Station UTC Offset** | number | Only needed if your TRMNL sits in a different time zone than the station. See [Time zones](#time-zones). |
 | **DJ Artwork** | select | Dithered / High contrast / Outlined / Hidden. Dark art dithers into noise on 1-bit panels &mdash; see [DJ artwork](#dj-artwork). |
 | **Show Description Size** | select | Large / Normal / Small. Sets type size and how many lines fit before the description ellipses. |
-| **Programming Guide Length** | number | 3–24 blocks in the guide column on the full layout. Rows that do not fit are dropped, so this is a ceiling: TRMNL OG shows about 11, TRMNL X about 16. |
+| **Programming Guide Length** | number | 3–24 blocks in the guide column on the full layout on TRMNL OG, which fits about 11. Rows that do not fit are dropped. TRMNL X always fills its taller column. |
 
 ## Layouts
 
