@@ -13,7 +13,7 @@ custom_fields:
   show_avatars: "yes"
   topic_size: "md"
   title_bar: "no"
-  guide_rows: 10
+  guide_rows: 16
 
 time_zone: America/Los_Angeles
 

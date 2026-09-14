@@ -4,6 +4,48 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-09-14
+
+### Added
+
+- **TRMNL X layouts.** Every view now targets the Framework's `lg` breakpoint
+  (TRMNL X, 1040×780) as well as TRMNL OG, so the larger panel gets content
+  rather than whitespace: a bigger wordmark, avatars and show title; longer
+  description clamps via `data-clamp-lg` / `data-clamp-lg-portrait`; and, on X
+  only, a **Coming Up** column on the half-horizontal layout listing the rest of
+  the day, the show description on the half-vertical layout, the next show on
+  the quadrant, and the host's tagline on the full and half-horizontal layouts.
+- **Programming Guide Length** now defaults to 16 with a ceiling of 24. TRMNL OG
+  drops the rows that do not fit; TRMNL X has room for them.
+- **`tools/preview.py`** renders every layout for TRMNL OG and TRMNL X, both
+  orientations, with the real Framework CSS and runtime &mdash; no Ruby or
+  Docker needed.
+
+### Fixed
+
+- **Single-line clamps dropped their last character** on about half of renders
+  (`YOSEMITE F...`, `WITH CLI...`). The clamp engine measures a shrink-wrapped
+  element against its own width and rounds the two figures differently, so every
+  clamped line now takes the full width of its column.
+- **The full layout lost its guide column in portrait.** The two columns now
+  stack (`portrait:flex--col`) and the guide takes the remaining height.
+- **Guide rows that did not fit were clipped mid-row** instead of dropped. The
+  overflow engine only hides `.item` children and budgets against its parent's
+  height, so each row is now an `.item` carrying its own rule, inside a wrapper
+  that is exactly the remaining space.
+- **The full layout's description was under-clamped on TRMNL OG**, pushing the
+  Coming Up block off the panel for long write-ups. A bare span in a block
+  wrapper takes the wrapper's line height while the clamp engine measures a
+  block; the description is a flex item again.
+
+### Changed
+
+- The half-horizontal masthead sits inside the on-air column so that, on TRMNL
+  X, the guide column can run the full height beside it.
+- On the NEXT line the host's name sits at the right edge of the row and the
+  show title takes the free width, which is what keeps the title from being
+  clamped a character short.
+
 ## [1.1.0] — 2026-08-29
 
 ### Note
@@ -131,5 +173,6 @@ SUB/WAVE operator can install.
   this as `##{{ station_url }}`; the `##` is documentation escaping and is passed
   through into the fetched URL literally, degrading the plugin.
 
+[1.2.0]: https://github.com/mrain1p/subwave-trmnl-display/releases/tag/v1.2.0
 [1.1.0]: https://github.com/mrain1p/subwave-trmnl-display/releases/tag/v1.1.0
 [1.0.0]: https://github.com/mrain1p/subwave-trmnl-display/releases/tag/v1.0.0

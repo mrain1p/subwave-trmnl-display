@@ -9,11 +9,11 @@
 {% assign title_bar    = cf.title_bar    | default: title_bar | default: 'no' %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
-{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
+{%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 12 %}{% assign t_clamp_lgp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 16 %}{% assign t_clamp_lgp = 10 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -119,6 +119,8 @@
 {% endif %}
 {% assign on_air = shows_l | find_by: 'id', current_id %}
 {% assign dj = personas_l | find_by: 'id', on_air.personaId %}
+{% assign up_next = shows_l | find_by: 'id', next_id %}
+{% assign ndj = personas_l | find_by: 'id', up_next.personaId %}
 
 <div class="layout layout--col layout--start">
   <div class="flex flex--col flex--left flex--top gap--xsmall w--full h--full">
@@ -130,23 +132,38 @@
     {% if data_ok == false %}
       <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
         <span class="label label--small label--filled self--start">STATION UNREACHABLE</span>
-        <span class="description" data-clamp="2">No schedule came back from {{ host }}.</span>
+        <span class="description w--full" data-clamp="2">No schedule came back from {{ host }}.</span>
       </div>
     {% elsif on_air %}
       <div class="flex flex--row flex--left flex--center-y gap--small w--full">
         {% if av_on and dj.avatar %}
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="image image-dither image--cover {{ av_extra }} w--[56px] h--[56px] portrait:w--[44px] portrait:h--[44px] shrink-0" src="{{ av }}" />
+          <img class="image image-dither image--cover {{ av_extra }} w--[56px] h--[56px] portrait:w--[44px] portrait:h--[44px] lg:w--[80px] lg:h--[80px] lg:portrait:w--[64px] lg:portrait:h--[64px] shrink-0" src="{{ av }}" />
         {% endif %}
-        <div class="flex flex--col flex--left flex--top gap--none">
+        {%- comment -%} w--full on the clamped lines: the clamp engine measures an element that is
+             only as wide as its own text and rounds the two figures differently, which drops
+             the last character on roughly half of renders {%- endcomment -%}
+        <div class="flex flex--col flex--left flex--top gap--none w--full">
           <span class="label label--small">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-          <span class="title title--small" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
-          {% if dj.name %}<span class="description" data-clamp="1">with {{ dj.name }}</span>{% endif %}
+          <span class="title title--small lg:title--base w--full" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
+          {% if dj.name %}<span class="description w--full" data-clamp="1">with {{ dj.name }}</span>{% endif %}
         </div>
       </div>
       {% if on_air.topic %}
         <div class="w--full border--h-black"></div>
-        <span class="description" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="5" data-clamp-lg-portrait="7">{{ on_air.topic }}</span>
+        <span class="description w--full" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="5" data-clamp-lg-portrait="9">{{ on_air.topic }}</span>
+      {% endif %}
+      {%- comment -%} TRMNL X has the height for the next show as well. `hidden lg:flex`: .hidden
+           outranks .flex by stylesheet order and the lg: variant outranks both {%- endcomment -%}
+      {% if up_next %}
+        <div class="flex hidden lg:flex flex--col flex--left flex--top gap--xsmall w--full">
+          <div class="w--full border--h-black"></div>
+          <div class="flex flex--row flex--left flex--center-y gap--small w--full">
+            <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
+            <span class="title title--small grow" data-clamp="1">{{ up_next.name | split: " ·" | first }}</span>
+            {% if ndj.name %}<span class="description shrink-0" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
+          </div>
+        </div>
       {% endif %}
     {% else %}
       <div class="flex flex--col flex--left flex--top gap--xsmall w--full">

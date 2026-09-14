@@ -17,6 +17,10 @@ Paste your station URL. Everything else — station name, tagline, DJs, artwork,
 the full 7×24 schedule — is read from your own station's API. No account, no API
 key, no third-party service in the middle.
 
+Built for both **TRMNL OG** and **TRMNL X**. The larger panel gets a bigger
+masthead and artwork, longer show descriptions, more guide rows, and on the
+half-horizontal layout a second column listing the rest of the day.
+
 ![The full layout, 800×480](docs/full.png)
 
 ## Requirements
@@ -75,11 +79,13 @@ Only the first field is required.
 | **Station UTC Offset** | number | Only needed if your TRMNL sits in a different time zone than the station. See [Time zones](#time-zones). |
 | **DJ Artwork** | select | Dithered / High contrast / Outlined / Hidden. Dark art dithers into noise on 1-bit panels &mdash; see [DJ artwork](#dj-artwork). |
 | **Show Description Size** | select | Large / Normal / Small. Sets type size and how many lines fit before the description ellipses. |
-| **Programming Guide Length** | number | 3–14 blocks in the guide column on the full layout. |
+| **Programming Guide Length** | number | 3–24 blocks in the guide column on the full layout. Rows that do not fit are dropped, so this is a ceiling: TRMNL OG shows about 11, TRMNL X about 16. |
 
 ## Layouts
 
-All four TRMNL layouts are implemented.
+All four TRMNL layouts are implemented. The screenshots are TRMNL OG (800×480);
+on TRMNL X (1040×780) every layout scales up and shows more &mdash; the
+half-horizontal layout, for instance, gains a Coming Up column.
 
 | | |
 | --- | --- |
@@ -119,6 +125,19 @@ bin/trmnlp serve
 Open <http://localhost:4567>. `bin/trmnlp` uses the Ruby gem if you have it and
 falls back to the Docker image if you don't. Edit anything in `src/` and the
 preview reloads.
+
+Without Ruby or Docker, `tools/preview.py` renders every layout for TRMNL OG
+and TRMNL X in both orientations and serves them locally:
+
+```sh
+pip install python-liquid
+export STATION_URL=https://radio.yourstation.com
+python tools/preview.py --serve
+```
+
+It loads the real Framework CSS and runtime from trmnl.com, so line clamps and
+overflow behave as they do on the device. `--at 2026-09-10T17:30` renders as of
+a given UTC time.
 
 ## Deploying from GitHub
 
@@ -247,7 +266,7 @@ unquoted description can drop every form field without any visible failure.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Current release: **1.1.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current release: **1.2.0**.
 
 ## License
 

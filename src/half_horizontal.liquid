@@ -9,11 +9,11 @@
 {% assign title_bar    = cf.title_bar    | default: title_bar | default: 'no' %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
-{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
+{%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 12 %}{% assign t_clamp_lgp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 16 %}{% assign t_clamp_lgp = 10 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -123,46 +123,161 @@
 {% assign ndj = personas_l | find_by: 'id', up_next.personaId %}
 
 <div class="layout layout--col layout--start">
-  <div class="flex flex--col flex--left flex--top gap--xsmall w--full h--full">
+  {%- comment -%} one column on TRMNL OG. TRMNL X has the height of an OG full screen here, so
+       the on-air block keeps 60% and a guide of what follows fills the right 40%. The masthead
+       lives inside the left column so this row is the h--full one: the guide's overflow budget
+       only resolves against a definite height {%- endcomment -%}
+  <div class="flex flex--row flex--left flex--top gap--none w--full h--full">
 
-    <div class="flex flex--row flex--between flex--center-y w--full border--h-black">
-      <span class="title title--small" data-clamp="1">{{ st_name | upcase }}</span>
-      <span class="label label--small">{{ local_ts | date: '%a, %b %-d' | upcase }}</span>
-    </div>
+      <div class="flex flex--col flex--left flex--top gap--xsmall w--full lg:w--[60cqw] shrink-0 lg:pr--2">
+        {%- comment -%} the wordmark grows to the free width: a clamped element that is only as
+             wide as its own text loses its last character to a rounding mismatch in the clamp
+             engine {%- endcomment -%}
+        <div class="flex flex--row flex--between flex--center-y gap--small w--full border--h-black shrink-0">
+          <span class="title title--small lg:title--base grow" data-clamp="1">{{ st_name | upcase }}</span>
+          <span class="label label--small shrink-0">{{ local_ts | date: '%a, %b %-d' | upcase }}</span>
+        </div>
 
-    {% if data_ok == false %}
-      <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
-        <span class="label label--small label--filled self--start">STATION UNREACHABLE</span>
-        <span class="description" data-clamp="2">No schedule came back from {{ host }}.</span>
-      </div>
-    {% elsif on_air %}
-      <div class="flex flex--row flex--left flex--center-y gap--small w--full">
-        {% if av_on and dj.avatar %}
-          {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-          <img class="image image-dither image--cover {{ av_extra }} w--[72px] h--[72px] portrait:w--[56px] portrait:h--[56px] shrink-0" src="{{ av }}" />
+        {% if data_ok == false %}
+          <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
+            <span class="label label--small label--filled self--start">STATION UNREACHABLE</span>
+            <span class="description w--full" data-clamp="2">No schedule came back from {{ host }}.</span>
+          </div>
+        {% elsif on_air %}
+          <div class="flex flex--row flex--left flex--center-y gap--small w--full">
+            {% if av_on and dj.avatar %}
+              {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
+              <img class="image image-dither image--cover {{ av_extra }} w--[72px] h--[72px] portrait:w--[56px] portrait:h--[56px] lg:w--[112px] lg:h--[112px] lg:portrait:w--[96px] lg:portrait:h--[96px] shrink-0" src="{{ av }}" />
+            {% endif %}
+            <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
+              <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+              <span class="title title--small lg:title--base w--full" data-clamp="1" data-clamp-lg="2">{{ on_air.name }}</span>
+              {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
+              {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+              {% if on_air.topic %}<span class="description w--full" data-clamp="2" data-clamp-portrait="3" data-clamp-lg="8" data-clamp-lg-portrait="9">{{ on_air.topic }}</span>{% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
+            <span class="label label--small label--filled self--start">UNSCHEDULED</span>
+            <span class="description">Rotation is running unattended.</span>
+          </div>
         {% endif %}
-        <div class="flex flex--col flex--left flex--top gap--xsmall">
-          <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-          <span class="title title--small" data-clamp="1">{{ on_air.name }}</span>
-          {% if dj.name %}<span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
-          {% if on_air.topic %}<span class="description" data-clamp="2" data-clamp-portrait="3">{{ on_air.topic }}</span>{% endif %}
+
+        {%- comment -%} the guide column carries this on TRMNL X {%- endcomment -%}
+        {% if up_next %}
+          <div class="w--full border--h-black lg:hidden"></div>
+          <div class="flex flex--row flex--left flex--center-y gap--small w--full lg:hidden">
+            <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
+            <span class="title title--small grow" data-clamp="1">{{ up_next.name }}</span>
+            {% if ndj.name %}<span class="description shrink-0" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      {%- comment -%} ═══ RIGHT COLUMN — TRMNL X only. `hidden lg:flex`: .hidden outranks .flex by
+           stylesheet order and the lg: variant outranks both, so this is display:none on OG
+           and a flex column on X. It keeps .flex as well: only children of .flex get
+           min-height:0, and the guide wrapper must be able to shrink. border--v-black paints
+           its left edge {%- endcomment -%}
+      <div class="flex hidden lg:flex flex--col flex--left flex--top gap--none lg:w--[40cqw] h--full lg:pl--2 border--v-black shrink-0">
+        <span class="label label--small shrink-0">COMING UP</span>
+        <div class="w--full border--h-black shrink-0"></div>
+
+        {%- comment -%} data-overflow budgets against its parent's height, so the list sits in a
+             wrapper that is exactly the remaining space; it only hides .item children, so each
+             row is an item with its rule riding on it {%- endcomment -%}
+        <div class="grow w--full">
+        <div class="flex flex--col flex--left flex--top gap--xsmall w--full" data-overflow="true">
+          {% assign hmax = 10 %}
+          {% assign hrows = 0 %}
+          {% assign tm_from = 0 %}
+          {% for h in (cur_start..23) %}
+            {% if hrows < hmax %}
+              {% assign id_h = today[h] %}
+              {% if id_h and id_h != current_id %}
+                {% assign hp = h | minus: 1 %}
+                {% if today[hp] != id_h %}
+                  {% assign b_end = 24 %}
+                  {% assign done = false %}
+                  {% for h2 in (h..23) %}
+                    {% unless done %}
+                      {% if today[h2] != id_h %}{% assign b_end = h2 %}{% assign done = true %}{% endif %}
+                    {% endunless %}
+                  {% endfor %}
+                  {% if b_end == 24 and tomorrow[0] == id_h %}
+                    {% assign tm_end2 = 24 %}
+                    {% assign done2 = false %}
+                    {% for h2 in (0..23) %}
+                      {% unless done2 %}
+                        {% if tomorrow[h2] != id_h %}{% assign tm_end2 = h2 %}{% assign done2 = true %}{% endif %}
+                      {% endunless %}
+                    {% endfor %}
+                    {% assign b_end = tm_end2 %}
+                    {% assign tm_from = tm_end2 %}
+                  {% endif %}
+                  {% capture t1 %}{% assign x = h | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if h >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                  {% assign be = b_end | modulo: 24 %}
+                  {% capture t2 %}{% assign x = be | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if be >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                  {% assign gs = shows_l | find_by: 'id', id_h %}
+                  {% if gs %}
+                    {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
+                    <div class="item shrink-0 border--h-black">
+                    <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
+                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <div class="flex flex--col flex--left flex--top gap--none w--full">
+                        <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
+                        {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
+                      </div>
+                    </div>
+                    </div>
+                    {% assign hrows = hrows | plus: 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if hrows < hmax %}
+            {% for h in (tm_from..23) %}
+              {% if hrows < hmax %}
+                {% assign id_h = tomorrow[h] %}
+                {% if id_h and id_h != current_id %}
+                  {% assign hp = h | minus: 1 %}
+                  {% assign prev_id = tomorrow[hp] %}
+                  {% if h == tm_from %}{% assign prev_id = "__none__" %}{% endif %}
+                  {% if prev_id != id_h %}
+                    {% assign b_end = 24 %}
+                    {% assign done = false %}
+                    {% for h2 in (h..23) %}
+                      {% unless done %}
+                        {% if tomorrow[h2] != id_h %}{% assign b_end = h2 %}{% assign done = true %}{% endif %}
+                      {% endunless %}
+                    {% endfor %}
+                    {% capture t1 %}{% assign x = h | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if h >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                    {% assign be = b_end | modulo: 24 %}
+                    {% capture t2 %}{% assign x = be | modulo: 12 %}{% if x == 0 %}12{% else %}{{ x }}{% endif %}{% if be >= 12 %}PM{% else %}AM{% endif %}{% endcapture %}
+                    {% assign gs = shows_l | find_by: 'id', id_h %}
+                    {% if gs %}
+                      {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
+                      <div class="item shrink-0 border--h-black">
+                      <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
+                        <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                        <div class="flex flex--col flex--left flex--top gap--none w--full">
+                          <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
+                          {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}
+                        </div>
+                      </div>
+                      </div>
+                      {% assign hrows = hrows | plus: 1 %}
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
         </div>
       </div>
-    {% else %}
-      <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
-        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
-        <span class="description">Rotation is running unattended.</span>
-      </div>
-    {% endif %}
-
-    {% if up_next %}
-      <div class="w--full border--h-black"></div>
-      <div class="flex flex--row flex--left flex--center-y gap--small w--full">
-        <span class="label label--small label--outline self--start shrink-0">NEXT &middot; {{ next_start_f }}</span>
-        <span class="title title--small" data-clamp="1">{{ up_next.name }}</span>
-        {% if ndj.name %}<span class="description shrink-0" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
-      </div>
-    {% endif %}
 
   </div>
 </div>

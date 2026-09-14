@@ -97,10 +97,10 @@ custom_fields:
 - keyname: guide_rows
   field_type: number
   name: Programming Guide Length
-  description: Maximum blocks to list in the guide column on the full-screen layout. Rows that do not fit the available height are dropped automatically, so a high number is a ceiling rather than a promise.
-  default: 10
+  description: Maximum blocks to list in the guide column on the full-screen layout. Rows that do not fit the available height are dropped automatically, so a high number is a ceiling rather than a promise &mdash; TRMNL OG shows about 11, TRMNL X about 16.
+  default: 16
   min: 3
-  max: 14
+  max: 24
   step: 1
   group: Display Options
 - keyname: about

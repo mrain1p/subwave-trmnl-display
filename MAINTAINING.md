@@ -16,7 +16,7 @@ operator installs it and supplies one field: their station URL.
 - **GitHub:** `mrain1p/subwave-trmnl-display`
 - **TRMNL plugin id:** `460475` (in `src/settings.yml` — `trmnlp push` targets it)
 - **Framework version:** 3.3.0
-- **Current release:** 1.1.0
+- **Current release:** 1.2.0
 
 There is an **orphaned earlier plugin, id 460454**, from before the repo existed.
 If the panel ever shows stale content, check which plugin is actually on the
@@ -26,7 +26,8 @@ playlist. The repo only drives 460475.
 
 ```
 src/           settings.yml + shared.liquid + the four view templates
-tools/         check.py (pre-push checks), dither_avatar.py (persona artwork)
+tools/         check.py (pre-push checks), preview.py (render OG + X without
+               Ruby), dither_avatar.py (persona artwork)
 docs/          README screenshots
 bin/trmnlp     local launcher: Ruby gem if present, Docker if not
 .trmnlp.yml    local preview values only — never uploaded to TRMNL
@@ -201,6 +202,64 @@ Facts that cost time to learn:
 - **`inverse` (new in 3.3.0)** re-maps semantic tokens for a whole subtree and
   tracks bit depth, dark mode and palettes. It replaces `bg--black` plus
   `text--white` repeated on every child.
+
+## TRMNL X — verified behaviour
+
+The reviewer's second pass (2026-09-10) asked for TRMNL X support: "OG in an X
+screen, more whitespace than content." Everything below was measured against
+the shipped 3.3.0 CSS and JS with `tools/preview.py`, not read from the docs.
+
+- **TRMNL X is `screen--v2`, breakpoint `lg`, 1040×780 CSS px**, drawn with
+  `transform: scale(1.8)` onto its 1872×1404 panel. TRMNL OG is `md`. Type on X
+  is ~0.8× the OG size in CSS px (description 13/15.6px, title 21px,
+  title--small 16px), which is the same physical size on the denser panel — so
+  X gets its content from *more* lines and rows, not bigger text.
+  `lg:title--large` (30px) is used for the wordmark only.
+- **`lg:` variants exist** for visibility, `w--[Npx]`/`h--[Npx]` up to 128px,
+  `w--[Ncqw]`, `h--[Ncqh]`, gaps, every type scale (`lg:title--base` and so on),
+  flex direction and alignment, padding and `col--span`. Compound
+  `lg:portrait:` variants exist for the same set. **They do not exist** for
+  `image-stroke`, `border--*` or `inverse`.
+- **`lg:visible` is `display:block`.** An X-only flex block is
+  `flex hidden lg:flex …`: `.hidden` comes later in the stylesheet than `.flex`,
+  so it wins on OG, and the `lg:` variant outranks both. Keep the bare `flex`
+  class as well — only children of `.flex` get `min-height: 0`
+  (`:where(.flex:not([data-overflow=true])) > *`), and without it a `grow`
+  wrapper cannot shrink below its content.
+- **`data-clamp` over-allocates on X by the pixel ratio.** The clamp engine
+  sizes its probe from `getBoundingClientRect()` (scaled px) but lays it out in
+  CSS px, so `data-clamp-lg="N"` yields up to ~1.8×N lines. The `-lg` values in
+  the views were chosen for the rendered result; if TRMNL fixes the engine the
+  layouts only get shorter, never clipped. Mario's own quadrant edit
+  (`data-clamp-lg="5"`) renders as nine lines.
+- **Single-line clamps drop their last character** on roughly half of renders
+  when the element is shrink-wrapped: the engine rounds the element's width but
+  ceils the probe's. Mario's screenshot showed `YOSEMITE ...` and
+  `THE TRAIL AHEAD · Morning Sh...`. The fix is structural — `w--full` on the
+  clamped element, or `grow` when it shares a row — never a wrapper alone.
+- **`.title` and `.description` are `display: inline`** unless they are flex
+  items. A bare span in a block wrapper takes the wrapper's line height, so the
+  clamp engine (which measures a block) under-clamps it by half on OG — that is
+  how the full layout lost its Coming Up block. Clamped text stays a direct
+  child of a `flex` container.
+- **`data-overflow="true"` hides only `.item` children** (plus adjacent
+  `.divider`s), and its height budget is the *parent's* `clientHeight`, not the
+  remaining space. Hence the guide structure: each row is
+  `<div class="item shrink-0 border--h-black">` (the rule rides on the item and
+  disappears with it), the list sits in a bare `<div class="grow w--full">`
+  that is exactly the remaining height, and every sibling above it is
+  `shrink-0`. `.item` sets `line-height: 0` and a 2px gap on itself, which is
+  why the row's own flex box is nested inside it rather than merged with it.
+  The engine runs *before* the clamp engine, so it budgets against the
+  unclamped text above it — conservative, never clipping.
+- **Percentage heights need a definite chain.** The half-horizontal masthead
+  moved inside the left column so the two-column row is the `h--full` one; a
+  `grow` row below a header is not definite, and `h--full` children of it just
+  take their content height.
+- **Ordering that matters:** the runtime hooks `DOMContentLoaded`, which fires
+  before web fonts load. `tools/preview.py` injects it after
+  `document.fonts.ready`; without that the clamp engine measures with a fallback
+  font and every clamp is wrong. TRMNL's renderer has the fonts local.
 
 ## Decisions that look like omissions
 

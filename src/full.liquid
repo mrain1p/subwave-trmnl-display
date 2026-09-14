@@ -9,11 +9,11 @@
 {% assign title_bar    = cf.title_bar    | default: title_bar | default: 'no' %}
 {% assign topic_size   = cf.topic_size   | default: topic_size | default: 'md' %}
 
-{%- comment -%} description size + how many lines survive the clamp {%- endcomment -%}
+{%- comment -%} description size + how many lines survive the clamp: OG, OG portrait, X, X portrait {%- endcomment -%}
 {% case topic_size %}
-  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}
-  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}
-  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}
+  {% when 'lg' %}{% assign t_cls = 'description description--large' %}{% assign t_clamp = 8 %}{% assign t_clamp_p = 4 %}{% assign t_clamp_lg = 12 %}{% assign t_clamp_lgp = 8 %}
+  {% when 'sm' %}{% assign t_cls = 'description text--small' %}{% assign t_clamp = 14 %}{% assign t_clamp_p = 7 %}{% assign t_clamp_lg = 20 %}{% assign t_clamp_lgp = 13 %}
+  {% else %}{% assign t_cls = 'description' %}{% assign t_clamp = 11 %}{% assign t_clamp_p = 5 %}{% assign t_clamp_lg = 16 %}{% assign t_clamp_lgp = 10 %}
 {% endcase %}
 
 {%- comment -%} DJ artwork treatment {%- endcomment -%}
@@ -118,17 +118,23 @@
   </div>
 {% endif %}
 <div class="layout layout--col layout--start">
-  <div class="flex flex--row flex--left flex--top gap--none w--full h--full">
+  {%- comment -%} two columns in landscape; portrait stacks them and the guide takes the
+       remaining height {%- endcomment -%}
+  <div class="flex flex--row flex--left flex--top portrait:flex--col gap--none w--full h--full">
 
     {%- comment -%} ═══ LEFT COLUMN ═══ {%- endcomment -%}
     <div class="flex flex--col flex--left flex--top gap--small w--[54cqw] shrink-0 portrait:w--full pr--2 portrait:pr--0">
 
+      {%- comment -%} single-line clamps get the full width (w--full, or a block wrapper). The clamp
+           engine measures a shrink-wrapped element against its own width and rounds the two
+           figures differently, which drops the last character on roughly half of renders
+           ("YOSEMITE F..."). A bare .title is display:inline, so it stays a flex item here {%- endcomment -%}
       <div class="flex flex--col flex--left flex--top gap--none w--full">
         <div class="flex flex--row flex--center-x w--full">
-          <span class="title portrait:title--small" data-clamp="1">{{ st_name | upcase }}</span>
+          <span class="title portrait:title--small lg:title--large lg:portrait:title--base text--center w--full" data-clamp="1">{{ st_name | upcase }}</span>
         </div>
         <div class="w--full border--h-black"></div>
-        <div class="flex flex--row flex--center-x w--full py--0.5">
+        <div class="w--full text--center py--0.5">
           <span class="label label--small" data-clamp="1">{{ st_tag | upcase }} &middot; {{ local_ts | date: '%a, %b %-d' | upcase }}</span>
         </div>
         <div class="w--full border--h-black"></div>
@@ -145,18 +151,23 @@
         <div class="flex flex--row flex--left flex--center-y gap--small w--full">
           {% if av_on and dj.avatar %}
             {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
-            <img class="image image-dither image--cover {{ av_extra }} w--[88px] h--[88px] shrink-0" src="{{ av }}" />
+            <img class="image image-dither image--cover {{ av_extra }} w--[88px] h--[88px] lg:w--[128px] lg:h--[128px] shrink-0" src="{{ av }}" />
           {% endif %}
-          <div class="flex flex--col flex--left flex--top gap--xsmall">
+          <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
             <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
-            <span class="title title--small" data-clamp="2">{{ on_air.name }}</span>
-            {% if dj.name %}<span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
+            <span class="title title--small lg:title--base w--full" data-clamp="2">{{ on_air.name }}</span>
+            {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
+            {%- comment -%} the persona tagline fits beside the larger TRMNL X avatar {%- endcomment -%}
+            {% if dj.tagline %}<span class="description hidden lg:visible w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
           </div>
         </div>
 
         <div class="w--full border--h-black"></div>
-        <div class="grow w--full">
-          <span class="{{ t_cls }}" data-clamp="{{ t_clamp }}" data-clamp-portrait="{{ t_clamp_p }}">{{ on_air.topic }}</span>
+        {%- comment -%} the description stays a flex item: a bare span in a block wrapper is
+             display:inline, its lines take the wrapper's line-height, and the clamp engine
+             (which measures a block) then under-clamps it by half on OG {%- endcomment -%}
+        <div class="flex flex--col flex--left flex--top gap--none grow w--full">
+          <span class="{{ t_cls }} w--full" data-clamp="{{ t_clamp }}" data-clamp-portrait="{{ t_clamp_p }}" data-clamp-lg="{{ t_clamp_lg }}" data-clamp-lg-portrait="{{ t_clamp_lgp }}">{{ on_air.topic }}</span>
         </div>
       {% else %}
         <div class="grow w--full flex flex--col flex--center gap--small">
@@ -172,23 +183,31 @@
         <div class="flex flex--row flex--left flex--center-y gap--small w--full">
           {% if av_on and ndj.avatar %}
             {% if ndj.avatar contains '://' %}{% assign nav = ndj.avatar %}{% else %}{% assign nav = base | append: ndj.avatar %}{% endif %}
-            <img class="image image-dither image--cover {{ av_extra }} w--[52px] h--[52px] shrink-0" src="{{ nav }}" />
+            <img class="image image-dither image--cover {{ av_extra }} w--[52px] h--[52px] lg:w--[64px] lg:h--[64px] shrink-0" src="{{ nav }}" />
           {% endif %}
-          <div class="flex flex--col flex--left flex--top gap--xsmall">
+          <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
             <span class="label label--small label--outline self--start">COMING UP &middot; {{ next_start_f }}</span>
-            <span class="title title--small" data-clamp="1">{{ up_next.name }}</span>
-            {% if ndj.name %}<span class="description" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
+            <span class="title title--small w--full" data-clamp="1">{{ up_next.name }}</span>
+            {% if ndj.name %}<span class="description w--full" data-clamp="1">with {{ ndj.name }}</span>{% endif %}
           </div>
         </div>
       {% endif %}
     </div>
 
-    {%- comment -%} ═══ RIGHT COLUMN — border--v-black paints its left edge ═══ {%- endcomment -%}
-    <div class="flex flex--col flex--left flex--top gap--none grow w--[46cqw] portrait:w--full h--full pl--2 portrait:pl--0 border--v-black">
-      <span class="label label--small">PROGRAMMING GUIDE</span>
-      <div class="w--full border--h-black"></div>
+    {%- comment -%} ═══ RIGHT COLUMN. The divider is its own 1px element (padding on both columns
+         centres it) so portrait can swap it for a horizontal rule ═══ {%- endcomment -%}
+    <div class="w--[1px] h--full shrink-0 border--v-black portrait:hidden"></div>
+    <div class="hidden portrait:visible w--full border--h-black shrink-0"></div>
+    <div class="flex flex--col flex--left flex--top gap--none grow w--[46cqw] portrait:w--full h--full portrait:h--auto pl--2 portrait:pl--0 portrait:pt--2">
+      <span class="label label--small shrink-0">PROGRAMMING GUIDE</span>
+      <div class="w--full border--h-black shrink-0"></div>
 
-      <div class="flex flex--col flex--left flex--top gap--xsmall grow w--full" data-overflow="true">
+      {%- comment -%} data-overflow drops the rows that do not fit. Its budget is the parent's
+           height, so the list sits in a wrapper that is exactly the remaining space (the wrapper
+           grows and shrinks, everything above it is shrink-0), and it only hides .item children,
+           so each row is an item with its rule riding on it {%- endcomment -%}
+      <div class="grow w--full">
+      <div class="flex flex--col flex--left flex--top gap--xsmall w--full" data-overflow="true">
         {% assign rows = 0 %}
         {% assign tm_from = tm_skip %}
 
@@ -239,22 +258,25 @@
                     {%- comment -%} inverse (3.3.0) re-maps the semantic tokens for the whole
                          subtree, so descendants invert without per-child text--white, and it
                          tracks bit depth, dark mode and the colour palettes {%- endcomment -%}
-                    <div class="inverse flex flex--row flex--left flex--top gap--small shrink-0 w--full rounded--xsmall px--1.5 py--1">
+                    <div class="item shrink-0">
+                    <div class="inverse flex flex--row flex--left flex--top gap--small w--full rounded--xsmall px--1.5 py--1">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div class="flex flex--col flex--left flex--top gap--none">
-                        <span class="title title--small" data-clamp="1">&#9654; {{ short_name }}</span>
-                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
+                      <div class="flex flex--col flex--left flex--top gap--none w--full">
+                        <span class="title title--small w--full" data-clamp="1">&#9654; {{ short_name }}</span>
+                        {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
+                    </div>
                     </div>
                   {% else %}
-                    <div class="flex flex--row flex--left flex--top gap--small shrink-0 w--full px--1.5">
+                    <div class="item shrink-0 border--h-black">
+                    <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div class="flex flex--col flex--left flex--top gap--none">
-                        <span class="title title--small" data-clamp="1">{{ short_name }}</span>
-                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
+                      <div class="flex flex--col flex--left flex--top gap--none w--full">
+                        <span class="title title--small w--full" data-clamp="1">{{ short_name }}</span>
+                        {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
                       </div>
                     </div>
-                    <div class="w--full border--h-black"></div>
+                    </div>
                   {% endif %}
                   {% assign rows = rows | plus: 1 %}
                 {% endif %}
@@ -292,14 +314,15 @@
                   {% if gs %}
                     {% assign short_name = gs.name | split: " ·" | first %}
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
-                    <div class="flex flex--row flex--left flex--top gap--small shrink-0 w--full px--1.5">
+                    <div class="item shrink-0 border--h-black">
+                    <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
                       <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
-                      <div class="flex flex--col flex--left flex--top gap--none">
-                        <span class="title title--small" data-clamp="1">{{ short_name }}</span>
-                        {% if gdj.name %}<span class="description" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
+                      <div class="flex flex--col flex--left flex--top gap--none w--full">
+                        <span class="title title--small w--full" data-clamp="1">{{ short_name }}</span>
+                        {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}
                       </div>
                     </div>
-                    <div class="w--full border--h-black"></div>
+                    </div>
                     {% assign rows = rows | plus: 1 %}
                   {% endif %}
                 {% endif %}
@@ -307,6 +330,7 @@
             {% endif %}
           {% endfor %}
         {% endif %}
+      </div>
       </div>
     </div>
 
