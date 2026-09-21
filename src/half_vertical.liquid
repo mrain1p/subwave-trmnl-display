@@ -76,9 +76,21 @@
 {% assign end_hour = cur_end %}
 {% assign next_id = nil %}
 {% assign next_start = 0 %}
+{%- comment -%} the next show is the next BOOKED hour, not merely the next hour whose id
+     differs: an unbooked hour after the current show would otherwise leave next_id nil and
+     drop the whole Coming Up block, while the guide column went on listing a later show
+     {%- endcomment -%}
 {% if cur_end < 24 %}
-  {% assign next_id = today[cur_end] %}
-  {% assign next_start = cur_end %}
+  {% assign found1 = false %}
+  {% for h in (cur_end..23) %}
+    {% unless found1 %}
+      {% if today[h] %}
+        {% assign next_id = today[h] %}
+        {% assign next_start = h %}
+        {% assign found1 = true %}
+      {% endif %}
+    {% endunless %}
+  {% endfor %}
 {% else %}
   {% if tomorrow[0] == current_id %}
     {% assign tm_end = 24 %}
@@ -90,13 +102,23 @@
     {% endfor %}
     {% assign end_hour = tm_end %}
     {% assign tm_skip = tm_end %}
-    {% assign next_id = tomorrow[tm_end] %}
-    {% assign next_start = tm_end %}
+    {%- comment -%} scan from tm_end, never from 0: an earlier hour would print a Coming Up
+         time before the current show has finished. (24..23) is an empty range {%- endcomment -%}
+    {% assign found4 = false %}
+    {% for h in (tm_end..23) %}
+      {% unless found4 %}
+        {% if tomorrow[h] %}
+          {% assign next_id = tomorrow[h] %}
+          {% assign next_start = h %}
+          {% assign found4 = true %}
+        {% endif %}
+      {% endunless %}
+    {% endfor %}
   {% else %}
     {% assign found2 = false %}
     {% for h in (0..23) %}
       {% unless found2 %}
-        {% if tomorrow[h] != current_id %}
+        {% if tomorrow[h] and tomorrow[h] != current_id %}
           {% assign next_id = tomorrow[h] %}
           {% assign next_start = h %}
           {% assign found2 = true %}

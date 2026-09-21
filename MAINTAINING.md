@@ -177,6 +177,15 @@ Facts that cost time to learn:
   direction class** (`.flex--row.flex--left`). Alone on a bare `.flex` they hit a
   different fallback rule whose meaning changed between 3.1.2 and 3.3.0. Always
   pair them with `flex--row` or `flex--col`.
+- **A bare `gap--*` does not survive `lg:flex`.** `.trmnl .screen--lg .lg\:flex`
+    sets `gap` *directly* at specificity (0,3,0); the gap utility is
+    `[class*=" gap--"]` at (0,2,0), in the same cascade layer, and it works
+    through the `--tn-gap` custom property. So on TRMNL X the token resolves
+    correctly and still loses the cascade, and every element carrying `lg:flex`
+    gets the 10px default gap whatever its `gap--*` says. Nothing greps for
+    this: the class exists, it is simply outranked. Any element with `lg:flex`
+    needs the matching `lg:gap--*` beside it. It cost the TRMNL X quadrant a
+    guide row, because the stray gaps came out of the `data-overflow` budget.
 - **`.flex` carries a default 10px gap.** Every nested flex container needs an
   explicit `gap--*`, or the spacing compounds and reads as excess padding.
 - **`divider` is hard-coded to border level 6** — a dithered pattern, never a
@@ -303,6 +312,30 @@ the shipped 3.3.0 CSS and JS with `tools/preview.py`, not read from the docs.
   before web fonts load. `tools/preview.py` injects it after
   `document.fonts.ready`; without that the clamp engine measures with a fallback
   font and every clamp is wrong. TRMNL's renderer has the fonts local.
+
+## Data shapes to test against
+
+The station this was built on has a fully booked 7&times;24 grid, one persona per
+show, artwork for everyone and a description on every show. Most defects found
+late came from assuming that shape. `tools/preview.py` renders the happy path;
+for the rest, build the variants by hand and check all four views at both sizes:
+
+- the poll returns nothing (station offline) and the poll returns a grid of
+  nulls (station up, nothing published) &mdash; these take different branches
+- an unbooked hour immediately after the current show. `next_id` used to take
+  the next hour whose id merely *differed* from the current one, so a gap set it
+  to nil and dropped the whole Coming Up block while the guide column went on
+  listing a later show. It now scans for the next *booked* hour
+- a persona with no `avatar`, no `tagline` or no `name`; a show with no `topic`,
+  no `moods`, or a name with no ` &middot; ` separator
+- one show booked around the clock, so there is no next show at all
+- a 44-character unbroken word in a show name or a host name
+
+**`nil == blank` differs between Liquid engines.** Ruby Liquid, which is what
+TRMNL runs, treats nil as blank, so the `st_name` / `st_tag` fallbacks fire.
+python-liquid, which `tools/preview.py` uses, does not &mdash; so the offline
+state renders there with an empty masthead that TRMNL itself would fill in.
+Do not chase that one; it is the harness, not the plugin.
 
 ## Decisions that look like omissions
 

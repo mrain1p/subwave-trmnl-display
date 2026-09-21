@@ -59,6 +59,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **The quadrant clipped its description in portrait** once the NEXT row
   stacked, and on TRMNL X reserved so much height for the description that only
   one upcoming show fitted.
+- **Every block carrying `lg:flex` was given a 10px gap it did not ask for.**
+  The framework's `lg:flex` sets `gap` directly and outranks the `gap--*`
+  utility, so on TRMNL X the gaps came back whatever the markup said. They came
+  out of the overflow budget, costing the quadrant a guide row (87% &rarr; 93%
+  of the panel filled).
+- **A gap in the schedule hid the next show entirely.** `next_id` took the next
+  hour whose id differed from the current show, so an unbooked hour set it to
+  nil: the Coming Up block vanished while the guide column carried on listing a
+  later show. It now finds the next booked hour. A station whose grid is fully
+  booked never saw this; one with an overnight gap saw it every evening.
 - **The full layout's description was under-clamped on TRMNL OG**, pushing the
   Coming Up block off the panel for long write-ups. A bare span in a block
   wrapper takes the wrapper's line height while the clamp engine measures a
