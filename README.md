@@ -260,6 +260,15 @@ Verifies `settings.yml` parses, and that no template carries an undefined Liquid
 variable, an inline `style` attribute, an `<img>` missing `image-dither`, or a
 leftover merge marker.
 
+```sh
+python tools/classcheck.py
+```
+
+Checks every CSS class in the markup against the shipped Framework stylesheet.
+A class that does not exist fails silently &mdash; the markup renders, just
+without the styling &mdash; so nothing catches it until a panel looks wrong on a
+device you did not test. CI runs both on every push.
+
 The YAML check is the one that matters: TRMNL silently ignores a `settings.yml`
 it cannot parse rather than reporting an error, so a stray `: ` inside an
 unquoted description can drop every form field without any visible failure.

@@ -126,7 +126,10 @@
   {%- comment -%} one column on TRMNL OG. TRMNL X has the height of an OG full screen here, so
        the on-air block keeps 60% and a guide of what follows fills the right 40%. The masthead
        lives inside the left column so this row is the h--full one: the guide's overflow budget
-       only resolves against a definite height {%- endcomment -%}
+       only resolves against a definite height, which is also why the guide is not stacked under
+       the on-air block on a portrait TRMNL OG: a flex-grown column in a stacked parent is not a
+       definite height, the budget comes back as the content height, and nothing gets trimmed
+       {%- endcomment -%}
   <div class="flex flex--row flex--left flex--top gap--none w--full h--full">
 
       <div class="flex flex--col flex--left flex--top gap--xsmall w--full lg:w--[60cqw] shrink-0 lg:pr--2">
@@ -153,8 +156,8 @@
               <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
               <span class="title title--small lg:title--base w--full" data-clamp="1" data-clamp-lg="2">{{ on_air.name }}</span>
               {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
-              {% if dj.tagline %}<span class="description w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
-              {% if on_air.topic %}<span class="description w--full" data-clamp="6" data-clamp-portrait="12" data-clamp-lg="14" data-clamp-lg-portrait="20">{{ on_air.topic }}</span>{% endif %}
+              {% if dj.tagline %}<span class="description w--full" data-clamp="2">{{ dj.tagline }}</span>{% endif %}
+              {% if on_air.topic %}<span class="description w--full" data-clamp="7" data-clamp-portrait="20" data-clamp-lg="14" data-clamp-lg-portrait="20">{{ on_air.topic }}</span>{% endif %}
             </div>
           </div>
         {% else %}

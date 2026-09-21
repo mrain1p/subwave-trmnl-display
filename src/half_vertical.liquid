@@ -158,7 +158,7 @@
             <span class="label label--small" data-clamp="1">WITH {{ dj.name | upcase }}</span>
           </div>
         {% endif %}
-        {% if dj.tagline %}<span class="description text--center w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+        {% if dj.tagline %}<span class="description text--center w--full" data-clamp="2">{{ dj.tagline }}</span>{% endif %}
       </div>
       {%- comment -%} the show description: three lines on OG, eight on TRMNL X. Its own
            data-overflow wrapper makes the runtime clamp it before it budgets the guide below
@@ -179,7 +179,9 @@
 
     {%- comment -%} data-overflow budgets against its parent's height, so the list sits in a
          wrapper that is exactly the remaining space; it only hides .item children, so each row
-         is an item with its rule riding on it {%- endcomment -%}
+         is an item with its rule riding on it. In portrait the cell is only 225px wide, so the
+         row stacks the time above the title rather than truncating it to "THE TRAIL AHE...";
+         both children are w--full there, which makes flex--col's centring invisible {%- endcomment -%}
     <div class="grow w--full">
     <div class="flex flex--col flex--left flex--top gap--xsmall w--full" data-overflow="true">
       {% assign vrows = 0 %}
@@ -215,8 +217,8 @@
               {% if gs %}
                 {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                 <div class="item shrink-0 border--h-black">
-                <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                  <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                <div class="flex flex--row flex--left flex--top gap--small portrait:flex--col portrait:gap--none w--full pb--1">
+                  <span class="label label--small value--tnums w--[76px] portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                   <div class="flex flex--col flex--left flex--top gap--none w--full">
                     <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                     {% if gdj.name %}<span class="description text--small w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -252,8 +254,8 @@
                 {% if gs %}
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                   <div class="item shrink-0 border--h-black">
-                  <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                    <span class="label label--small value--tnums w--[76px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                  <div class="flex flex--row flex--left flex--top gap--small portrait:flex--col portrait:gap--none w--full pb--1">
+                    <span class="label label--small value--tnums w--[76px] portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                     <div class="flex flex--col flex--left flex--top gap--none w--full">
                       <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                       {% if gdj.name %}<span class="description text--small w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}

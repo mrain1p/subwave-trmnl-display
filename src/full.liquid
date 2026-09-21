@@ -157,7 +157,7 @@
             <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
             <span class="title title--small lg:title--base w--full" data-clamp="2">{{ on_air.name }}</span>
             {% if dj.name %}<span class="label label--small w--full" data-clamp="1">WITH {{ dj.name | upcase }}</span>{% endif %}
-            {% if dj.tagline %}<span class="description w--full" data-clamp="1">{{ dj.tagline }}</span>{% endif %}
+            {% if dj.tagline %}<span class="description w--full" data-clamp="2">{{ dj.tagline }}</span>{% endif %}
             {% if on_air.moods and on_air.moods.size > 0 %}
               <div class="flex hidden lg:flex flex--row flex--left flex--center-y gap--xsmall w--full">
                 {% for mood in on_air.moods limit: 4 %}<span class="label label--small label--outline">{{ mood | upcase }}</span>{% endfor %}

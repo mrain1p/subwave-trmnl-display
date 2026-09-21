@@ -26,8 +26,9 @@ playlist. The repo only drives 460475.
 
 ```
 src/           settings.yml + shared.liquid + the four view templates
-tools/         check.py (pre-push checks), preview.py (render OG + X without
-               Ruby), dither_avatar.py (persona artwork)
+tools/         check.py (pre-push checks), classcheck.py (every class exists in
+               the Framework bundle), preview.py (render OG + X without Ruby),
+               dither_avatar.py (persona artwork)
 docs/          README screenshots
 bin/trmnlp     local launcher: Ruby gem if present, Docker if not
 .trmnlp.yml    local preview values only — never uploaded to TRMNL
@@ -271,6 +272,33 @@ the shipped 3.3.0 CSS and JS with `tools/preview.py`, not read from the docs.
   went half empty after the framework bump. Budgets per view are in the
   templates' `data-clamp` attributes; the full layout's live in the
   `topic_size` block at the top of every view.
+- **Measure ink, not boxes.** Comparing the bottom of the deepest element with
+  the panel bottom reports every view as 100% full, because the `h--full` and
+  `grow` wrappers span the panel whether or not anything is painted in them.
+  Measure the deepest element that actually paints &mdash; an `img`, a
+  `border--h-black` rule, or a childless element with text.
+- **The runtime schedules itself on `requestAnimationFrame`**, which browsers
+  throttle to nothing in a hidden tab or an offscreen iframe, so a headless
+  measurement harness sees unclamped, untrimmed markup and every number is
+  wrong. `tools/preview.py` is fine because a person is looking at it; a
+  measurement harness has to shim `requestAnimationFrame` (and
+  `requestIdleCallback`) to `setTimeout` before the runtime loads. Calling
+  `window.terminalize()` by hand is not a substitute &mdash; it never settles
+  in an iframe.
+- **`data-overflow` needs a definite height above it.** Its budget is the
+  parent's `clientHeight`, so a column that is merely flex-grown inside a
+  stacked parent reports its own content height, the budget comes back as
+  "everything fits", and nothing is trimmed. The half-horizontal guide was
+  tried stacked under the on-air block on a portrait TRMNL OG and rendered at
+  171% of the panel with 49 elements past the edge. That is why the guide there
+  is still TRMNL X only, and why that one panel fills 72&ndash;84% rather than
+  the 87&ndash;100% every other panel reaches.
+- **The overflow engine budgets before the clamp engine runs**, so it always
+  reserves room for text that is about to get shorter and leaves roughly one
+  row of slack. Giving each description its own `data-overflow="true"` wrapper
+  recovers most of it, but not all: the TRMNL X quadrant settles at 87&ndash;90%
+  for this reason. Trading description lines for one more guide row is not
+  worth it.
 - **Ordering that matters:** the runtime hooks `DOMContentLoaded`, which fires
   before web fonts load. `tools/preview.py` injects it after
   `document.fonts.ready`; without that the clamp engine measures with a fallback
@@ -364,8 +392,10 @@ unreliable whenever it asserts what does or does not exist in the Framework,
 where it tends to suggest Tailwind class names (`border-l`, `w--px`,
 `ml--negative`, `col--span-6` as a novelty) that are not in the bundle.
 
-When it makes a claim about a class, check the stylesheet before acting. When it
-points at something in these files, it is usually right.
+When it makes a claim about a class, check the stylesheet before acting &mdash;
+`python tools/classcheck.py` does exactly that for every class the markup uses,
+and CI runs it. When it points at something in these files, it is usually
+right.
 
 **Scored against the 2026-08-29 review, 3 of 6 did not hold:**
 

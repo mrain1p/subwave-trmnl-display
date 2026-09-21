@@ -3,10 +3,25 @@ name: TRMNL
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
+  # Repo-specific checks. These caught things trmnlp's linter does not look at:
+  # a settings.yml TRMNL would silently ignore, undefined Liquid variables, off-scale
+  # size tokens, and class names that do not exist in the Framework bundle.
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python tools/check.py
+      - run: python tools/classcheck.py
+
   lint:
+    needs: checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +32,7 @@ jobs:
       - run: bundle exec trmnlp lint
 
   push:
-    needs: lint
+    needs: [checks, lint]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:

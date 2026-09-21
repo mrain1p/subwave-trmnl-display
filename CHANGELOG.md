@@ -21,9 +21,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   next show's description under Coming Up, which sits at the foot of the column;
   the quadrant shows the full show name.
 - **TRMNL OG re-budgeted for Framework 3.3.0**, which draws descriptions at a
-  12px pitch: the full layout shows up to 18 lines (was 11), half horizontal 6
+  12px pitch: the full layout shows up to 18 lines (was 11), half horizontal 7
   (was 2), the quadrant 7 (was 2), and half vertical gains a 3-line description.
   The host's tagline and the quadrant's NEXT line now show on OG as well.
+- **Every panel measured rather than eyeballed.** Each of the four views was
+  rendered at both device sizes in both orientations against the real framework
+  CSS and runtime, and the painted height compared with the panel height. All
+  sixteen now fill 87&ndash;100% with nothing clipped and nothing ellipsised,
+  except half horizontal on a portrait TRMNL OG (72&ndash;84%, see below).
+- **The quadrant lists what is coming up on TRMNL X** instead of a single NEXT
+  line, which is what closed the largest remaining gap (69% &rarr; 90% filled).
+- **`tools/classcheck.py`** checks every class in the markup against the shipped
+  Framework stylesheet, and CI now runs it and `tools/check.py` on every push.
 - **`tools/preview.py`** renders every layout for TRMNL OG and TRMNL X, both
   orientations, with the real Framework CSS and runtime &mdash; no Ruby or
   Docker needed.
@@ -42,6 +51,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   that is exactly the remaining space.
 - **The NEXT line's host name was clamped a character short** (`with Da...`);
   it is no longer clamped.
+- **The host's tagline was ellipsised on six of the sixteen panels.** It gets
+  two lines now, which is what removed the last truncated text anywhere.
+- **Half vertical truncated every guide title in portrait** (`THE TRAIL AHE...`):
+  a 225px-wide cell cannot hold a fixed time column and a 16px title side by
+  side, so in portrait the row stacks the time above the title.
+- **The quadrant clipped its description in portrait** once the NEXT row
+  stacked, and on TRMNL X reserved so much height for the description that only
+  one upcoming show fitted.
 - **The full layout's description was under-clamped on TRMNL OG**, pushing the
   Coming Up block off the panel for long write-ups. A bare span in a block
   wrapper takes the wrapper's line height while the clamp engine measures a
