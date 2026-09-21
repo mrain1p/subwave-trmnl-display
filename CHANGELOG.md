@@ -64,6 +64,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   utility, so on TRMNL X the gaps came back whatever the markup said. They came
   out of the overflow budget, costing the quadrant a guide row (87% &rarr; 93%
   of the panel filled).
+- **The guide's time column wrapped on TRMNL X.** "10AM&ndash;11AM" needs 83px
+  at the 13px label TRMNL X uses and the column was 76px, so those rows rendered
+  two lines tall. The column is 84px now, 88px on TRMNL X.
+- **The quadrant showed nothing about what was coming during an unscheduled
+  gap**, because its Coming Up block sat inside the on-air branch. It was the
+  only one of the four views that behaved that way. The block now sits outside
+  the branch, guarded so it never renders an empty header.
+- **The quadrant's ON AIR badge was plain text while its NEXT badge was a
+  pill**, so the hierarchy was inverted on the panel with the least room. ON AIR
+  is a filled pill now, as it is on the other three views.
+- **Half vertical's ON AIR and UNSCHEDULED pills hung off the centre axis** of
+  an otherwise centred column.
 - **A gap in the schedule hid the next show entirely.** `next_id` took the next
   hour whose id differed from the current show, so an unbooked hour set it to
   nil: the Coming Up block vanished while the guide column carried on listing a

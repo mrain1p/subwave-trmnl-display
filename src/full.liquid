@@ -297,7 +297,7 @@
                          tracks bit depth, dark mode and the colour palettes {%- endcomment -%}
                     <div class="item shrink-0">
                     <div class="inverse flex flex--row flex--left flex--top gap--small w--full rounded--xsmall px--1.5 py--1">
-                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
                         <span class="title title--small w--full" data-clamp="1">&#9654; {{ short_name }}</span>
                         {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -307,7 +307,7 @@
                   {% else %}
                     <div class="item shrink-0 border--h-black{% if rows >= max_rows %} hidden lg:flex{% endif %}">
                     <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
-                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
                         <span class="title title--small w--full" data-clamp="1">{{ short_name }}</span>
                         {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -353,7 +353,7 @@
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                     <div class="item shrink-0 border--h-black{% if rows >= max_rows %} hidden lg:flex{% endif %}">
                     <div class="flex flex--row flex--left flex--top gap--small w--full px--1.5 pb--1">
-                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
                         <span class="title title--small w--full" data-clamp="1">{{ short_name }}</span>
                         {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}

@@ -173,7 +173,7 @@
           {% if dj.avatar contains '://' %}{% assign av = dj.avatar %}{% else %}{% assign av = base | append: dj.avatar %}{% endif %}
           <img class="image image-dither image--cover {{ av_extra }} w--[96px] h--[96px] portrait:w--[72px] portrait:h--[72px] lg:w--[128px] lg:h--[128px] lg:portrait:w--[112px] lg:portrait:h--[112px]" src="{{ av }}" />
         {% endif %}
-        <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+        <span class="label label--small label--filled">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
         <span class="title title--small lg:title--base text--center w--full" data-clamp="2">{{ on_air.name }}</span>
         {% if dj.name %}
           <div class="w--full text--center">
@@ -192,7 +192,7 @@
       {% endif %}
     {% else %}
       <div class="flex flex--col flex--center-x gap--xsmall w--full shrink-0">
-        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
+        <span class="label label--small label--filled">UNSCHEDULED</span>
       </div>
     {% endif %}
 
@@ -240,7 +240,7 @@
                 {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                 <div class="item shrink-0 border--h-black">
                 <div class="flex flex--row flex--left flex--top gap--small portrait:flex--col portrait:gap--none w--full pb--1">
-                  <span class="label label--small value--tnums w--[76px] portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                  <span class="label label--small value--tnums w--[84px] lg:w--[88px] portrait:w--full lg:portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                   <div class="flex flex--col flex--left flex--top gap--none w--full">
                     <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                     {% if gdj.name %}<span class="description text--small w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -277,7 +277,7 @@
                   {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                   <div class="item shrink-0 border--h-black">
                   <div class="flex flex--row flex--left flex--top gap--small portrait:flex--col portrait:gap--none w--full pb--1">
-                    <span class="label label--small value--tnums w--[76px] portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                    <span class="label label--small value--tnums w--[84px] lg:w--[88px] portrait:w--full lg:portrait:w--full shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                     <div class="flex flex--col flex--left flex--top gap--none w--full">
                       <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                       {% if gdj.name %}<span class="description text--small w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}

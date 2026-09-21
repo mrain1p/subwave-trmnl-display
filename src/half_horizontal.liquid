@@ -249,7 +249,7 @@
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                     <div class="item shrink-0 border--h-black">
                     <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
                         <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                         {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -286,7 +286,7 @@
                       {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                       <div class="item shrink-0 border--h-black">
                       <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                        <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                        <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                         <div class="flex flex--col flex--left flex--top gap--none w--full">
                           <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                           {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}

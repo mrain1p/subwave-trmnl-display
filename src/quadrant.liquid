@@ -166,7 +166,7 @@
              only as wide as its own text and rounds the two figures differently, which drops
              the last character on roughly half of renders {%- endcomment -%}
         <div class="flex flex--col flex--left flex--top gap--none w--full">
-          <span class="label label--small">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
+          <span class="label label--small label--filled self--start">&#9679; ON AIR &middot; {{ cur_start_f }}&ndash;{{ cur_end_f }}</span>
           <span class="title title--small w--full lg:hidden" data-clamp="1">{{ on_air.name | split: " ·" | first }}</span>
           <span class="title title--small lg:title--base w--full hidden lg:visible" data-clamp="1" data-clamp-lg-portrait="2">{{ on_air.name }}</span>
           {% if dj.name %}<span class="description w--full" data-clamp="1">with {{ dj.name }}</span>{% endif %}
@@ -183,6 +183,13 @@
         </div>
       {% endif %}
 
+    {% else %}
+      <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
+        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
+        <span class="description">Rotation running unattended.</span>
+      </div>
+    {% endif %}
+
       {%- comment -%} TRMNL OG has room for one NEXT line. In portrait the cell is 225px wide, so
            the row stacks (both children w--full, which makes flex--col's centring invisible) and
            the show's short name is used {%- endcomment -%}
@@ -195,8 +202,6 @@
             {% if ndj.name %}<span class="description shrink-0 portrait:hidden">with {{ ndj.name }}</span>{% endif %}
           </div>
         </div>
-      {% endif %}
-
       {%- comment -%} TRMNL X has an OG half-horizontal's worth of room here, so it gets the rest
            of the day instead of a single NEXT line. `hidden lg:flex`: .hidden outranks .flex by
            stylesheet order and the lg: variant outranks both. The bare .flex stays because only
@@ -241,7 +246,7 @@
                     {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                     <div class="item shrink-0 border--h-black">
                     <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                      <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                      <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                       <div class="flex flex--col flex--left flex--top gap--none w--full">
                         <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                         {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }}</span>{% endif %}
@@ -278,7 +283,7 @@
                       {% assign gdj = personas_l | find_by: 'id', gs.personaId %}
                       <div class="item shrink-0 border--h-black">
                       <div class="flex flex--row flex--left flex--top gap--small w--full pb--1">
-                        <span class="label label--small value--tnums w--[84px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
+                        <span class="label label--small value--tnums w--[84px] lg:w--[88px] shrink-0">{{ t1 }}&ndash;{{ t2 }}</span>
                         <div class="flex flex--col flex--left flex--top gap--none w--full">
                           <span class="title title--small w--full" data-clamp="1">{{ gs.name | split: " ·" | first }}</span>
                           {% if gdj.name %}<span class="description w--full" data-clamp="1">with {{ gdj.name }} &middot; tomorrow</span>{% endif %}
@@ -295,12 +300,7 @@
         </div>
         </div>
       </div>
-    {% else %}
-      <div class="flex flex--col flex--left flex--top gap--xsmall w--full">
-        <span class="label label--small label--filled self--start">UNSCHEDULED</span>
-        <span class="description">Rotation running unattended.</span>
-      </div>
-    {% endif %}
+      {% endif %}
 
   </div>
 </div>
